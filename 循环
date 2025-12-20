@@ -1,0 +1,1804 @@
+## 程序1: 辛普森积分法
+
+```
+#include <iostream>
+#include <cmath>
+#include <chrono>
+
+double func1(double x) {
+    return sin(x);
+}
+
+int main() {
+    auto start = std::chrono::high_resolution_clock::now();
+    
+    const int n = 1000000;
+    double a = 0.0, b = 1.0;
+    double h = (b - a) / n;
+    double sum = 0.0;
+    
+    sum = func1(a) + func1(b);
+    for(int i = 1; i < n; i++) {
+        double x = a + i * h;
+        if(i % 2 == 0) {
+            sum += 2.0 * func1(x);
+        } else {
+            sum += 4.0 * func1(x);
+        }
+    }
+    sum *= h / 3.0;
+    
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end - start;
+    
+    std::cout << "程序1 - 辛普森积分: ∫sin(x)dx (0→1) = " << sum << std::endl;
+    std::cout << "理论值: " << 1.0 - cos(1.0) << std::endl;
+    std::cout << "运行时间: " << elapsed.count() << "秒" << std::endl;
+    
+    return 0;
+}
+```
+
+## 程序2: 梯形积分法
+
+```
+#include <iostream>
+#include <cmath>
+#include <chrono>
+
+double func2(double x) {
+    return exp(-x * x);
+}
+
+int main() {
+    auto start = std::chrono::high_resolution_clock::now();
+    
+    const int n = 1000000;
+    double a = 0.0, b = 2.0;
+    double h = (b - a) / n;
+    double sum = 0.0;
+    
+    sum = (func2(a) + func2(b)) / 2.0;
+    for(int i = 1; i < n; i++) {
+        double x = a + i * h;
+        sum += func2(x);
+    }
+    sum *= h;
+    
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end - start;
+    
+    std::cout << "程序2 - 梯形积分: ∫exp(-x²)dx (0→2) = " << sum << std::endl;
+    std::cout << "运行时间: " << elapsed.count() << "秒" << std::endl;
+    
+    return 0;
+}
+```
+
+## 程序3: 计算π（蒙特卡洛方法）
+
+```
+#include <iostream>
+#include <cmath>
+#include <cstdlib>
+#include <ctime>
+#include <chrono>
+
+int main() {
+    auto start = std::chrono::high_resolution_clock::now();
+    
+    const int n = 1000000;
+    int inside_circle = 0;
+    
+    std::srand(std::time(0));
+    for(int i = 0; i < n; i++) {
+        double x = static_cast<double>(rand()) / RAND_MAX;
+        double y = static_cast<double>(rand()) / RAND_MAX;
+        
+        if(x * x + y * y <= 1.0) {
+            inside_circle++;
+        }
+    }
+    
+    double pi_estimate = 4.0 * inside_circle / n;
+    
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end - start;
+    
+    std::cout << "程序3 - 蒙特卡洛法计算π: " << pi_estimate << std::endl;
+    std::cout << "实际π值: " << M_PI << std::endl;
+    std::cout << "运行时间: " << elapsed.count() << "秒" << std::endl;
+    
+    return 0;
+}
+```
+
+## 程序4: 计算自然常数e
+
+```
+#include <iostream>
+#include <cmath>
+#include <chrono>
+
+int main() {
+    auto start = std::chrono::high_resolution_clock::now();
+    
+    const int n = 20;
+    double e = 1.0;
+    double factorial = 1.0;
+    
+    for(int i = 1; i <= n; i++) {
+        factorial *= i;
+        e += 1.0 / factorial;
+    }
+    
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end - start;
+    
+    std::cout << "程序4 - 计算自然常数e: " << e << std::endl;
+    std::cout << "实际e值: " << M_E << std::endl;
+    std::cout << "运行时间: " << elapsed.count() << "秒" << std::endl;
+    
+    return 0;
+}
+```
+
+## 程序5: 调和级数求和
+
+```
+#include <iostream>
+#include <cmath>
+#include <chrono>
+
+int main() {
+    auto start = std::chrono::high_resolution_clock::now();
+    
+    const int n = 1000000;
+    double sum = 0.0;
+    
+    for(int i = 1; i <= n; i++) {
+        sum += 1.0 / i;
+    }
+    
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end - start;
+    
+    std::cout << "程序5 - 调和级数前" << n << "项和: " << sum << std::endl;
+    std::cout << "运行时间: " << elapsed.count() << "秒" << std::endl;
+    
+    return 0;
+}
+```
+
+## 程序6: 几何级数求和
+
+```
+#include <iostream>
+#include <cmath>
+#include <chrono>
+
+int main() {
+    auto start = std::chrono::high_resolution_clock::now();
+    
+    const int n = 1000000;
+    double r = 0.5;
+    double sum = 0.0;
+    double term = 1.0;
+    
+    for(int i = 0; i < n; i++) {
+        sum += term;
+        term *= r;
+    }
+    
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end - start;
+    
+    std::cout << "程序6 - 几何级数求和: " << sum << std::endl;
+    std::cout << "理论极限: " << 1.0 / (1.0 - r) << std::endl;
+    std::cout << "运行时间: " << elapsed.count() << "秒" << std::endl;
+    
+    return 0;
+}
+```
+
+## 程序7: 正弦函数泰勒展开
+
+```
+#include <iostream>
+#include <cmath>
+#include <chrono>
+
+int main() {
+    auto start = std::chrono::high_resolution_clock::now();
+    
+    const int n = 10;
+    double x = 1.0;
+    double sum = 0.0;
+    double term = x;
+    int sign = 1;
+    
+    for(int i = 1; i <= n; i++) {
+        if(i % 2 == 1) {
+            sum += sign * term;
+            sign = -sign;
+        }
+        term *= x * x / ((2 * i) * (2 * i + 1));
+    }
+    
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end - start;
+    
+    std::cout << "程序7 - sin(1)泰勒展开: " << sum << std::endl;
+    std::cout << "实际值: " << sin(x) << std::endl;
+    std::cout << "运行时间: " << elapsed.count() << "秒" << std::endl;
+    
+    return 0;
+}
+```
+
+## 程序8: 余弦函数泰勒展开
+
+```
+#include <iostream>
+#include <cmath>
+#include <chrono>
+
+int main() {
+    auto start = std::chrono::high_resolution_clock::now();
+    
+    const int n = 10;
+    double x = 1.0;
+    double sum = 0.0;
+    double term = 1.0;
+    int sign = 1;
+    
+    for(int i = 0; i < n; i++) {
+        if(i % 2 == 0) {
+            sum += sign * term;
+            sign = -sign;
+        }
+        term *= x * x / ((2 * i + 1) * (2 * i + 2));
+    }
+    
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end - start;
+    
+    std::cout << "程序8 - cos(1)泰勒展开: " << sum << std::endl;
+    std::cout << "实际值: " << cos(x) << std::endl;
+    std::cout << "运行时间: " << elapsed.count() << "秒" << std::endl;
+    
+    return 0;
+}
+```
+
+## 程序9: 指数函数泰勒展开
+
+```
+#include <iostream>
+#include <cmath>
+#include <chrono>
+
+int main() {
+    auto start = std::chrono::high_resolution_clock::now();
+    
+    const int n = 20;
+    double x = 1.0;
+    double sum = 0.0;
+    double term = 1.0;
+    
+    for(int i = 0; i < n; i++) {
+        sum += term;
+        term *= x / (i + 1);
+    }
+    
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end - start;
+    
+    std::cout << "程序9 - exp(1)泰勒展开: " << sum << std::endl;
+    std::cout << "实际值: " << exp(x) << std::endl;
+    std::cout << "运行时间: " << elapsed.count() << "秒" << std::endl;
+    
+    return 0;
+}
+```
+
+## 程序10: 对数函数泰勒展开
+
+```
+#include <iostream>
+#include <cmath>
+#include <chrono>
+
+int main() {
+    auto start = std::chrono::high_resolution_clock::now();
+    
+    const int n = 1000000;
+    double x = 0.5;
+    double sum = 0.0;
+    double x_power = x;
+    
+    for(int i = 1; i <= n; i++) {
+        if(i % 2 == 0) {
+            sum -= x_power / i;
+        } else {
+            sum += x_power / i;
+        }
+        x_power *= x;
+    }
+    
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end - start;
+    
+    std::cout << "程序10 - ln(1.5)泰勒展开: " << sum << std::endl;
+    std::cout << "实际值: " << log(1.0 + x) << std::endl;
+    std::cout << "运行时间: " << elapsed.count() << "秒" << std::endl;
+    
+    return 0;
+}
+```
+
+## 程序11: 数值微分（中心差分法）
+
+```
+#include <iostream>
+#include <cmath>
+#include <chrono>
+
+double func11(double x) {
+    return sin(x) * cos(x);
+}
+
+int main() {
+    auto start = std::chrono::high_resolution_clock::now();
+    
+    const int n = 1000000;
+    double h = 0.0001;
+    double sum = 0.0;
+    
+    for(int i = 0; i < n; i++) {
+        double x = i * 0.001;
+        double derivative = (func11(x + h) - func11(x - h)) / (2.0 * h);
+        sum += derivative;
+    }
+    
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end - start;
+    
+    std::cout << "程序11 - 数值微分和: " << sum << std::endl;
+    std::cout << "运行时间: " << elapsed.count() << "秒" << std::endl;
+    
+    return 0;
+}
+```
+
+## 程序12: 数值微分（五点公式）
+
+```
+#include <iostream>
+#include <cmath>
+#include <chrono>
+
+double func12(double x) {
+    return log(1.0 + x * x);
+}
+
+int main() {
+    auto start = std::chrono::high_resolution_clock::now();
+    
+    const int n = 10000;
+    double h = 0.0001;
+    double sum = 0.0;
+    
+    for(int i = 0; i < n; i++) {
+        double x = i * 0.001;
+        double derivative = (-func12(x + 2*h) + 8*func12(x + h) - 8*func12(x - h) + func12(x - 2*h)) / (12.0 * h);
+        sum += derivative;
+    }
+    
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end - start;
+    
+    std::cout << "程序12 - 五点公式微分和: " << sum << std::endl;
+    std::cout << "运行时间: " << elapsed.count() << "秒" << std::endl;
+    
+    return 0;
+}
+```
+
+## 程序13: 中点法则积分
+
+```
+#include <iostream>
+#include <cmath>
+#include <chrono>
+
+double func13(double x) {
+    return sqrt(4.0 - x * x);
+}
+
+int main() {
+    auto start = std::chrono::high_resolution_clock::now();
+    
+    const int n = 1000000;
+    double a = 0.0, b = 2.0;
+    double h = (b - a) / n;
+    double sum = 0.0;
+    
+    for(int i = 0; i < n; i++) {
+        double x_mid = a + (i + 0.5) * h;
+        sum += func13(x_mid) * h;
+    }
+    
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end - start;
+    
+    std::cout << "程序13 - 中点法则积分: " << sum << std::endl;
+    std::cout << "理论值(1/4圆面积): " << M_PI << std::endl;
+    std::cout << "运行时间: " << elapsed.count() << "秒" << std::endl;
+    
+    return 0;
+}
+```
+
+## 程序14: 复利计算
+
+```
+#include <iostream>
+#include <cmath>
+#include <chrono>
+
+int main() {
+    auto start = std::chrono::high_resolution_clock::now();
+    
+    const int n = 1000000;
+    double principal = 1000.0;
+    double rate = 0.05;
+    double amount = principal;
+    
+    for(int i = 0; i < n; i++) {
+        amount *= (1.0 + rate / 365.0);
+    }
+    
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end - start;
+    
+    std::cout << "程序14 - 复利计算" << std::endl;
+    std::cout << "本金: " << principal << std::endl;
+    std::cout << "年利率: " << rate * 100 << "%" << std::endl;
+    std::cout << "天数: " << n << std::endl;
+    std::cout << "终值: " << amount << std::endl;
+    std::cout << "运行时间: " << elapsed.count() << "秒" << std::endl;
+    
+    return 0;
+}
+```
+
+## 程序15: 指数衰减
+
+```
+#include <iostream>
+#include <cmath>
+#include <chrono>
+
+int main() {
+    auto start = std::chrono::high_resolution_clock::now();
+    
+    const int n = 1000000;
+    double initial = 1.0;
+    double decay_rate = 0.000001;
+    double value = initial;
+    double sum = 0.0;
+    
+    for(int i = 0; i < n; i++) {
+        value *= (1.0 - decay_rate);
+        sum += value;
+    }
+    
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end - start;
+    
+    std::cout << "程序15 - 指数衰减求和: " << sum << std::endl;
+    std::cout << "运行时间: " << elapsed.count() << "秒" << std::endl;
+    
+    return 0;
+}
+```
+
+## 程序16: 双曲函数积分
+
+```
+#include <iostream>
+#include <cmath>
+#include <chrono>
+
+double func16(double x) {
+    return sinh(x) * cosh(x);
+}
+
+int main() {
+    auto start = std::chrono::high_resolution_clock::now();
+    
+    const int n = 1000000;
+    double a = 0.0, b = 1.0;
+    double h = (b - a) / n;
+    double sum = 0.0;
+    
+    for(int i = 0; i < n; i++) {
+        double x = a + i * h;
+        sum += func16(x) * h;
+    }
+    
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end - start;
+    
+    std::cout << "程序16 - 双曲函数积分: " << sum << std::endl;
+    std::cout << "理论值: " << (cosh(2.0) - 1.0) / 4.0 << std::endl;
+    std::cout << "运行时间: " << elapsed.count() << "秒" << std::endl;
+    
+    return 0;
+}
+```
+
+## 程序17: 多项式求值
+
+```
+#include <iostream>
+#include <cmath>
+#include <chrono>
+
+int main() {
+    auto start = std::chrono::high_resolution_clock::now();
+    
+    const int n = 1000000;
+    double x = 0.5;
+    double sum = 0.0;
+    
+    for(int i = 0; i < n; i++) {
+        double term = 1.0;
+        for(int j = 0; j < 5; j++) {
+            term *= (x + i * 0.00001);
+        }
+        sum += term;
+    }
+    
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end - start;
+    
+    std::cout << "程序17 - 多项式求值和: " << sum << std::endl;
+    std::cout << "运行时间: " << elapsed.count() << "秒" << std::endl;
+    
+    return 0;
+}
+```
+
+## 程序18: 矩阵乘法
+
+```
+#include <iostream>
+#include <cmath>
+#include <chrono>
+
+int main() {
+    auto start = std::chrono::high_resolution_clock::now();
+    
+    const int size = 50;
+    double A[50][50], B[50][50], C[50][50];
+    double sum = 0.0;
+    
+    // 初始化矩阵
+    for(int i = 0; i < size; i++) {
+        for(int j = 0; j < size; j++) {
+            A[i][j] = (i + j) * 0.01;
+            B[i][j] = (i - j) * 0.01;
+            C[i][j] = 0.0;
+        }
+    }
+    
+    // 矩阵乘法
+    for(int i = 0; i < size; i++) {
+        for(int j = 0; j < size; j++) {
+            for(int k = 0; k < size; k++) {
+                C[i][j] += A[i][k] * B[k][j];
+            }
+            sum += C[i][j];
+        }
+    }
+    
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end - start;
+    
+    std::cout << "程序18 - 矩阵乘法结果: " << sum << std::endl;
+    std::cout << "运行时间: " << elapsed.count() << "秒" << std::endl;
+    
+    return 0;
+}
+```
+
+## 程序19: 计算Basel问题
+
+```
+#include <iostream>
+#include <cmath>
+#include <chrono>
+
+int main() {
+    auto start = std::chrono::high_resolution_clock::now();
+    
+    const int n = 1000000;
+    double sum = 0.0;
+    
+    for(int i = 1; i <= n; i++) {
+        sum += 1.0 / (i * i);
+    }
+    
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end - start;
+    
+    std::cout << "程序19 - Basel问题: " << sum << std::endl;
+    std::cout << "理论极限: " << M_PI * M_PI / 6.0 << std::endl;
+    std::cout << "运行时间: " << elapsed.count() << "秒" << std::endl;
+    
+    return 0;
+}
+```
+
+## 程序20: 正弦积分
+
+```
+#include <iostream>
+#include <cmath>
+#include <chrono>
+
+double func20(double x) {
+    if(fabs(x) < 1e-10) return 1.0;
+    return sin(x) / x;
+}
+
+int main() {
+    auto start = std::chrono::high_resolution_clock::now();
+    
+    const int n = 1000000;
+    double a = 0.000001, b = 1.0;
+    double h = (b - a) / n;
+    double sum = 0.0;
+    
+    for(int i = 0; i < n; i++) {
+        double x = a + i * h;
+        sum += func20(x) * h;
+    }
+    
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end - start;
+    
+    std::cout << "程序20 - 正弦积分: " << sum << std::endl;
+    std::cout << "运行时间: " << elapsed.count() << "秒" << std::endl;
+    
+    return 0;
+}
+```
+
+**程序21: 龙格函数积分**
+
+```
+#include <iostream>
+#include <cmath>
+#include <chrono>
+
+double func21(double x) {
+    return 1.0 / (1.0 + 25.0 * x * x);
+}
+
+int main() {
+    auto start = std::chrono::high_resolution_clock::now();
+    
+    const int n = 1000000;
+    double a = -1.0, b = 1.0;
+    double h = (b - a) / n;
+    double sum = 0.0;
+    
+    for(int i = 0; i < n; i++) {
+        double x1 = a + i * h;
+        double x2 = a + (i + 1) * h;
+        sum += (func21(x1) + func21(x2)) * h / 2.0;
+    }
+    
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end - start;
+    
+    std::cout << "程序21 - 龙格函数积分: ∫1/(1+25x²)dx (-1→1) = " << sum << std::endl;
+    std::cout << "理论值: " << 2.0 * atan(5.0) / 5.0 << std::endl;
+    std::cout << "运行时间: " << elapsed.count() << "秒" << std::endl;
+    
+    return 0;
+}
+```
+
+**程序22: 布尔法则积分**
+
+```
+#include <iostream>
+#include <cmath>
+#include <chrono>
+
+double func22(double x) {
+    return exp(-x * x / 2.0) / sqrt(2.0 * M_PI);
+}
+
+int main() {
+    auto start = std::chrono::high_resolution_clock::now();
+    
+    const int n = 1000000;
+    if(n % 4 != 0) {
+        std::cout << "错误: n必须是4的倍数" << std::endl;
+        return 1;
+    }
+    
+    double a = -5.0, b = 5.0;
+    double h = (b - a) / n;
+    double sum = 7.0 * (func22(a) + func22(b));
+    
+    for(int i = 1; i < n; i++) {
+        double x = a + i * h;
+        if(i % 4 == 0) {
+            sum += 14.0 * func22(x);
+        } else if(i % 2 == 0) {
+            sum += 12.0 * func22(x);
+        } else {
+            sum += 32.0 * func22(x);
+        }
+    }
+    sum *= 2.0 * h / 45.0;
+    
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end - start;
+    
+    std::cout << "程序22 - 布尔法则积分: ∫exp(-x²/2)/√(2π)dx (-5→5) = " << sum << std::endl;
+    std::cout << "运行时间: " << elapsed.count() << "秒" << std::endl;
+    
+    return 0;
+}
+```
+
+**程序23: 切比雪夫多项式计算**
+
+```
+#include <iostream>
+#include <cmath>
+#include <chrono>
+
+int main() {
+    auto start = std::chrono::high_resolution_clock::now();
+    
+    const int n = 10;
+    double x = 0.5;
+    double sum = 0.0;
+    
+    double T0 = 1.0;
+    double T1 = x;
+    double Tn = 0.0;
+    
+    sum = T0 + T1;
+    for(int i = 2; i <= n; i++) {
+        Tn = 2.0 * x * T1 - T0;
+        sum += Tn;
+        T0 = T1;
+        T1 = Tn;
+    }
+    
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end - start;
+    
+    std::cout << "程序23 - 切比雪夫多项式和(T0到T" << n << "在x=" << x << "): " << sum << std::endl;
+    std::cout << "运行时间: " << elapsed.count() << "秒" << std::endl;
+    
+    return 0;
+}
+```
+
+**程序24: 拉格朗日插值**
+
+```
+#include <iostream>
+#include <cmath>
+#include <chrono>
+
+int main() {
+    auto start = std::chrono::high_resolution_clock::now();
+    
+    const int m = 5;
+    double x[5] = {0.0, 1.0, 2.0, 3.0, 4.0};
+    double y[5] = {0.0, 1.0, 4.0, 9.0, 16.0};
+    double xi = 2.5;
+    double result = 0.0;
+    
+    for(int i = 0; i < m; i++) {
+        double term = y[i];
+        for(int j = 0; j < m; j++) {
+            if(i != j) {
+                term *= (xi - x[j]) / (x[i] - x[j]);
+            }
+        }
+        result += term;
+    }
+    
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end - start;
+    
+    std::cout << "程序24 - 拉格朗日插值: f(" << xi << ") ≈ " << result << std::endl;
+    std::cout << "实际值: " << xi * xi << std::endl;
+    std::cout << "运行时间: " << elapsed.count() << "秒" << std::endl;
+    
+    return 0;
+}
+```
+
+**程序25: 龙格-库塔方法**
+
+```
+#include <iostream>
+#include <cmath>
+#include <chrono>
+
+int main() {
+    auto start = std::chrono::high_resolution_clock::now();
+    
+    const int n = 10000;
+    double h = 0.001;
+    double x = 0.0, y = 1.0;
+    double sum = 0.0;
+    
+    auto f = [](double x, double y) { return x - y; };
+    
+    for(int i = 0; i < n; i++) {
+        double k1 = h * f(x, y);
+        double k2 = h * f(x + h/2.0, y + k1/2.0);
+        double k3 = h * f(x + h/2.0, y + k2/2.0);
+        double k4 = h * f(x + h, y + k3);
+        
+        y += (k1 + 2.0*k2 + 2.0*k3 + k4) / 6.0;
+        x += h;
+        sum += y;
+    }
+    
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end - start;
+    
+    std::cout << "程序25 - 龙格-库塔法: y(" << x << ") ≈ " << y << std::endl;
+    std::cout << "y值总和: " << sum << std::endl;
+    std::cout << "运行时间: " << elapsed.count() << "秒" << std::endl;
+    
+    return 0;
+}
+```
+
+**程序26: 欧拉方法**
+
+```
+#include <iostream>
+#include <cmath>
+#include <chrono>
+
+int main() {
+    auto start = std::chrono::high_resolution_clock::now();
+    
+    const int n = 10000;
+    double h = 0.001;
+    double x = 0.0, y = 1.0;
+    double sum = 0.0;
+    
+    auto f = [](double x, double y) { return y - x; };
+    
+    for(int i = 0; i < n; i++) {
+        y += h * f(x, y);
+        x += h;
+        sum += y;
+    }
+    
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end - start;
+    
+    std::cout << "程序26 - 欧拉方法: y(" << x << ") ≈ " << y << std::endl;
+    std::cout << "y值总和: " << sum << std::endl;
+    std::cout << "运行时间: " << elapsed.count() << "秒" << std::endl;
+    
+    return 0;
+}
+```
+
+**程序27: 改进欧拉法**
+
+```
+#include <iostream>
+#include <cmath>
+#include <chrono>
+
+int main() {
+    auto start = std::chrono::high_resolution_clock::now();
+    
+    const int n = 10000;
+    double h = 0.001;
+    double x = 0.0, y = 0.0;
+    double sum = 0.0;
+    
+    auto f = [](double x, double y) { return sin(x) + cos(y); };
+    
+    for(int i = 0; i < n; i++) {
+        double yp = y + h * f(x, y);
+        double yc = y + h * f(x + h, yp);
+        y = (yp + yc) / 2.0;
+        x += h;
+        sum += y;
+    }
+    
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end - start;
+    
+    std::cout << "程序27 - 改进欧拉法: y(" << x << ") ≈ " << y << std::endl;
+    std::cout << "y值总和: " << sum << std::endl;
+    std::cout << "运行时间: " << elapsed.count() << "秒" << std::endl;
+    
+    return 0;
+}
+```
+
+**程序28: 牛顿法求根**
+
+```
+#include <iostream>
+#include <cmath>
+#include <chrono>
+
+int main() {
+    auto start = std::chrono::high_resolution_clock::now();
+    
+    const int max_iter = 100;
+    double x = 1.5;
+    double sum = 0.0;
+    
+    auto f = [](double x) { return x * x - 2.0; };
+    auto df = [](double x) { return 2.0 * x; };
+    
+    for(int i = 0; i < max_iter; i++) {
+        double fx = f(x);
+        double dfx = df(x);
+        
+        if(fabs(dfx) < 1e-10) break;
+        
+        x = x - fx / dfx;
+        sum += x;
+        
+        if(fabs(fx) < 1e-10) break;
+    }
+    
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end - start;
+    
+    std::cout << "程序28 - 牛顿法求根: √2 ≈ " << x << std::endl;
+    std::cout << "实际值: " << sqrt(2.0) << std::endl;
+    std::cout << "x值总和: " << sum << std::endl;
+    std::cout << "运行时间: " << elapsed.count() << "秒" << std::endl;
+    
+    return 0;
+}
+```
+
+**程序29: 最小二乘法**
+
+```
+#include <iostream>
+#include <cmath>
+#include <chrono>
+
+int main() {
+    auto start = std::chrono::high_resolution_clock::now();
+    
+    const int n = 1000;
+    double sum_x = 0.0, sum_y = 0.0, sum_xx = 0.0, sum_xy = 0.0;
+    
+    for(int i = 0; i < n; i++) {
+        double xi = i * 0.01;
+        double yi = 2.0 * xi + 1.0 + 0.1 * sin(i);
+        sum_x += xi;
+        sum_y += yi;
+        sum_xx += xi * xi;
+        sum_xy += xi * yi;
+    }
+    
+    double m = (n * sum_xy - sum_x * sum_y) / (n * sum_xx - sum_x * sum_x);
+    double b = (sum_y - m * sum_x) / n;
+    
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end - start;
+    
+    std::cout << "程序29 - 最小二乘法拟合" << std::endl;
+    std::cout << "斜率m: " << m << std::endl;
+    std::cout << "截距b: " << b << std::endl;
+    std::cout << "运行时间: " << elapsed.count() << "秒" << std::endl;
+    
+    return 0;
+}
+```
+
+**程序30: 线性插值**
+
+```
+#include <iostream>
+#include <cmath>
+#include <chrono>
+
+int main() {
+    auto start = std::chrono::high_resolution_clock::now();
+    
+    const int n = 1000;
+    double x[11], y[11];
+    double sum = 0.0;
+    
+    for(int i = 0; i <= 10; i++) {
+        x[i] = i * 0.1;
+        y[i] = x[i] * x[i];
+    }
+    
+    for(int i = 0; i < n; i++) {
+        double xi = (i % 100) * 0.01;
+        int j = (int)(xi * 10);
+        if(j < 10) {
+            double yi = y[j] + (y[j+1] - y[j]) * (xi - x[j]) / (x[j+1] - x[j]);
+            sum += yi;
+        }
+    }
+    
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end - start;
+    
+    std::cout << "程序30 - 线性插值和: " << sum << std::endl;
+    std::cout << "运行时间: " << elapsed.count() << "秒" << std::endl;
+    
+    return 0;
+}
+```
+
+**程序31: 霍纳法求多项式值**
+
+```
+#include <iostream>
+#include <cmath>
+#include <chrono>
+
+int main() {
+    auto start = std::chrono::high_resolution_clock::now();
+    
+    const int n = 1000000;
+    double x = 0.5;
+    double sum = 0.0;
+    double coefficients[5] = {1.0, 2.0, 3.0, 4.0, 5.0};
+    
+    for(int iter = 0; iter < n/100; iter++) {
+        double result = 0.0;
+        for(int i = 4; i >= 0; i--) {
+            result = result * x + coefficients[i];
+        }
+        sum += result;
+    }
+    
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end - start;
+    
+    std::cout << "程序31 - 霍纳法求多项式值和: " << sum << std::endl;
+    std::cout << "运行时间: " << elapsed.count() << "秒" << std::endl;
+    
+    return 0;
+}
+```
+
+**程序32: 双曲正弦函数计算**
+
+```
+#include <iostream>
+#include <cmath>
+#include <chrono>
+
+int main() {
+    auto start = std::chrono::high_resolution_clock::now();
+    
+    const int n = 20;
+    double x = 1.0;
+    double sum = 0.0;
+    double term = x;
+    
+    for(int i = 1; i <= n; i += 2) {
+        sum += term;
+        term *= x * x / ((i + 1) * (i + 2));
+    }
+    
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end - start;
+    
+    std::cout << "程序32 - sinh(1)泰勒展开: " << sum << std::endl;
+    std::cout << "实际值: " << sinh(x) << std::endl;
+    std::cout << "运行时间: " << elapsed.count() << "秒" << std::endl;
+    
+    return 0;
+}
+```
+
+**程序33: 双曲余弦函数计算**
+
+```
+#include <iostream>
+#include <cmath>
+#include <chrono>
+
+int main() {
+    auto start = std::chrono::high_resolution_clock::now();
+    
+    const int n = 20;
+    double x = 1.0;
+    double sum = 0.0;
+    double term = 1.0;
+    
+    for(int i = 0; i <= n; i += 2) {
+        sum += term;
+        if(i + 2 <= n) {
+            term *= x * x / ((i + 1) * (i + 2));
+        }
+    }
+    
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end - start;
+    
+    std::cout << "程序33 - cosh(1)泰勒展开: " << sum << std::endl;
+    std::cout << "实际值: " << cosh(x) << std::endl;
+    std::cout << "运行时间: " << elapsed.count() << "秒" << std::endl;
+    
+    return 0;
+}
+```
+
+**程序34: 反正切函数计算**
+
+```
+#include <iostream>
+#include <cmath>
+#include <chrono>
+
+int main() {
+    auto start = std::chrono::high_resolution_clock::now();
+    
+    const int n = 1000000;
+    double x = 0.5;
+    double sum = 0.0;
+    double x_power = x;
+    
+    for(int i = 1; i <= n; i++) {
+        if(i % 2 == 0) {
+            sum -= x_power / i;
+        } else {
+            sum += x_power / i;
+        }
+        x_power *= x * x;
+    }
+    
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end - start;
+    
+    std::cout << "程序34 - arctan(0.5)泰勒展开: " << sum << std::endl;
+    std::cout << "实际值: " << atan(x) << std::endl;
+    std::cout << "运行时间: " << elapsed.count() << "秒" << std::endl;
+    
+    return 0;
+}
+```
+
+**程序35: 平方根计算（牛顿迭代法）**
+
+```
+#include <iostream>
+#include <cmath>
+#include <chrono>
+
+int main() {
+    auto start = std::chrono::high_resolution_clock::now();
+    
+    const int n = 100000;
+    double sum = 0.0;
+    
+    for(int i = 1; i <= n; i++) {
+        double x = i * 1.0;
+        double guess = x / 2.0;
+        
+        for(int iter = 0; iter < 10; iter++) {
+            guess = 0.5 * (guess + x / guess);
+        }
+        sum += guess;
+    }
+    
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end - start;
+    
+    std::cout << "程序35 - 牛顿迭代法平方根和: " << sum << std::endl;
+    std::cout << "运行时间: " << elapsed.count() << "秒" << std::endl;
+    
+    return 0;
+}
+```
+
+**程序36: 立方根计算（牛顿迭代法）**
+
+```
+#include <iostream>
+#include <cmath>
+#include <chrono>
+
+int main() {
+    auto start = std::chrono::high_resolution_clock::now();
+    
+    const int n = 100000;
+    double sum = 0.0;
+    
+    for(int i = 1; i <= n; i++) {
+        double x = i * 1.0;
+        double guess = x / 3.0;
+        
+        for(int iter = 0; iter < 10; iter++) {
+            guess = (2.0 * guess + x / (guess * guess)) / 3.0;
+        }
+        sum += guess;
+    }
+    
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end - start;
+    
+    std::cout << "程序36 - 牛顿迭代法立方根和: " << sum << std::endl;
+    std::cout << "运行时间: " << elapsed.count() << "秒" << std::endl;
+    
+    return 0;
+}
+```
+
+**程序37: 指数积分近似**
+
+```
+#include <iostream>
+#include <cmath>
+#include <chrono>
+
+int main() {
+    auto start = std::chrono::high_resolution_clock::now();
+    
+    const int n = 1000000;
+    double a = 1.0, b = 2.0;
+    double h = (b - a) / n;
+    double sum = 0.0;
+    
+    for(int i = 0; i < n; i++) {
+        double x = a + i * h;
+        if(x > 0) {
+            sum += exp(-x) / x * h;
+        }
+    }
+    
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end - start;
+    
+    std::cout << "程序37 - 指数积分近似: ∫e^(-x)/x dx (1→2) ≈ " << sum << std::endl;
+    std::cout << "运行时间: " << elapsed.count() << "秒" << std::endl;
+    
+    return 0;
+}
+```
+
+**程序38: 对数积分近似**
+
+```
+#include <iostream>
+#include <cmath>
+#include <chrono>
+
+int main() {
+    auto start = std::chrono::high_resolution_clock::now();
+    
+    const int n = 1000000;
+    double a = 2.0, b = 3.0;
+    double h = (b - a) / n;
+    double sum = 0.0;
+    
+    for(int i = 0; i < n; i++) {
+        double x = a + i * h;
+        if(x > 1 && x != 1) {
+            sum += 1.0 / log(x) * h;
+        }
+    }
+    
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end - start;
+    
+    std::cout << "程序38 - 对数积分近似: ∫1/ln(x) dx (2→3) ≈ " << sum << std::endl;
+    std::cout << "运行时间: " << elapsed.count() << "秒" << std::endl;
+    
+    return 0;
+}
+```
+
+**程序39: 误差函数近似**
+
+```
+#include <iostream>
+#include <cmath>
+#include <chrono>
+
+int main() {
+    auto start = std::chrono::high_resolution_clock::now();
+    
+    const int n = 10000;
+    double x = 1.0;
+    double sum = 0.0;
+    double term = x;
+    
+    for(int k = 0; k < n; k++) {
+        double numerator = (k % 2 == 0) ? 1.0 : -1.0;
+        double denominator = (2*k + 1);
+        for(int i = 1; i <= k; i++) {
+            denominator *= i;
+        }
+        if(k > 0) {
+            term = numerator * pow(x, 2*k+1) / ((2*k+1) * denominator);
+        } else {
+            term = numerator * pow(x, 2*k+1) / (2*k+1);
+        }
+        sum += term;
+    }
+    sum *= 2.0 / sqrt(M_PI);
+    
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end - start;
+    
+    std::cout << "程序39 - 误差函数erf(1)近似: " << sum << std::endl;
+    std::cout << "参考值: " << 0.84270079294971486934 << std::endl;
+    std::cout << "运行时间: " << elapsed.count() << "秒" << std::endl;
+    
+    return 0;
+}
+```
+
+**程序40: 伽马函数近似（斯特林公式）**
+
+```
+#include <iostream>
+#include <cmath>
+#include <chrono>
+
+int main() {
+    auto start = std::chrono::high_resolution_clock::now();
+    
+    const int n = 100000;
+    double z = 2.5;
+    double sum = 0.0;
+    
+    for(int i = 0; i < n; i++) {
+        double z_val = z + i * 0.00001;
+        if(z_val > 0) {
+            double gamma_approx = sqrt(2.0 * M_PI / z_val) * pow(z_val / M_E, z_val);
+            sum += gamma_approx;
+        }
+    }
+    
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end - start;
+    
+    std::cout << "程序40 - 伽马函数斯特林公式近似和: " << sum << std::endl;
+    std::cout << "运行时间: " << elapsed.count() << "秒" << std::endl;
+    
+    return 0;
+}
+```
+
+**程序41: 龙格函数积分（高精度版本）**
+
+```
+#include <iostream>
+#include <cmath>
+#include <chrono>
+
+double func41(double x) {
+    return 1.0 / (1.0 + 25.0 * x * x);
+}
+
+int main() {
+    auto start = std::chrono::high_resolution_clock::now();
+    
+    const int n = 2000000;
+    double a = -1.0, b = 1.0;
+    double h = (b - a) / n;
+    double sum = 0.0;
+    
+    for(int i = 0; i < n; i++) {
+        double x1 = a + i * h;
+        double x2 = a + (i + 1) * h;
+        double x_mid = (x1 + x2) / 2.0;
+        sum += (func41(x1) + 4.0 * func41(x_mid) + func41(x2)) * h / 6.0;
+    }
+    
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end - start;
+    
+    std::cout << "程序41 - 高精度龙格函数积分: ∫1/(1+25x²)dx (-1→1) = " << sum << std::endl;
+    std::cout << "理论值: " << 2.0 * atan(5.0) / 5.0 << std::endl;
+    std::cout << "运行时间: " << elapsed.count() << "秒" << std::endl;
+    
+    return 0;
+}
+```
+
+**程序42: 复合辛普森积分法**
+
+```
+#include <iostream>
+#include <cmath>
+#include <chrono>
+
+double func42(double x) {
+    return sin(x) * exp(-x);
+}
+
+int main() {
+    auto start = std::chrono::high_resolution_clock::now();
+    
+    const int n = 2000000;
+    double a = 0.0, b = 5.0;
+    double h = (b - a) / n;
+    double sum = 0.0;
+    
+    for(int i = 0; i < n; i++) {
+        double x1 = a + i * h;
+        double x2 = a + (i + 1) * h;
+        double x_mid = (x1 + x2) / 2.0;
+        sum += (func42(x1) + 4.0 * func42(x_mid) + func42(x2)) * h / 6.0;
+    }
+    
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end - start;
+    
+    std::cout << "程序42 - 复合辛普森积分: ∫sin(x)e^(-x)dx (0→5) = " << sum << std::endl;
+    std::cout << "运行时间: " << elapsed.count() << "秒" << std::endl;
+    
+    return 0;
+}
+```
+
+**程序43: 高斯积分近似（2点公式）**
+
+```
+#include <iostream>
+#include <cmath>
+#include <chrono>
+
+double func43(double x) {
+    return exp(-x * x);
+}
+
+int main() {
+    auto start = std::chrono::high_resolution_clock::now();
+    
+    const int n = 1000000;
+    double a = 0.0, b = 1.0;
+    double sum = 0.0;
+    
+    double x1 = -1.0/sqrt(3.0);
+    double x2 = 1.0/sqrt(3.0);
+    double w1 = 1.0, w2 = 1.0;
+    
+    for(int i = 0; i < n/2; i++) {
+        double t1 = (b-a)/2.0 * x1 + (b+a)/2.0;
+        double t2 = (b-a)/2.0 * x2 + (b+a)/2.0;
+        sum += w1 * func43(t1) + w2 * func43(t2);
+    }
+    sum *= (b-a)/2.0;
+    
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end - start;
+    
+    std::cout << "程序43 - 高斯积分近似: ∫exp(-x²)dx (0→1) = " << sum << std::endl;
+    std::cout << "运行时间: " << elapsed.count() << "秒" << std::endl;
+    
+    return 0;
+}
+```
+
+**程序44: 自适应辛普森积分法**
+
+```
+#include <iostream>
+#include <cmath>
+#include <chrono>
+
+double func44(double x) {
+    return sin(x) / x;
+}
+
+double adaptive_simpson(double a, double b, double tol, int depth) {
+    double c = (a + b) / 2.0;
+    double h = b - a;
+    
+    double fa = func44(a);
+    double fb = func44(b);
+    double fc = func44(c);
+    
+    double S = (h / 6.0) * (fa + 4.0 * fc + fb);
+    double S1 = (h / 12.0) * (fa + 4.0 * func44((a + c) / 2.0) + fc);
+    double S2 = (h / 12.0) * (fc + 4.0 * func44((c + b) / 2.0) + fb);
+    
+    if (fabs(S1 + S2 - S) < 15.0 * tol || depth <= 0) {
+        return S1 + S2 + (S1 + S2 - S) / 15.0;
+    }
+    
+    return adaptive_simpson(a, c, tol/2.0, depth-1) + 
+           adaptive_simpson(c, b, tol/2.0, depth-1);
+}
+
+int main() {
+    auto start = std::chrono::high_resolution_clock::now();
+    
+    double a = 0.000001, b = 1.0;
+    double tol = 1e-8;
+    int max_depth = 20;
+    
+    double result = adaptive_simpson(a, b, tol, max_depth);
+    
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end - start;
+    
+    std::cout << "程序44 - 自适应辛普森积分: ∫sin(x)/x dx (0→1) = " << result << std::endl;
+    std::cout << "运行时间: " << elapsed.count() << "秒" << std::endl;
+    
+    return 0;
+}
+```
+
+**程序45: 龙贝格积分法**
+
+```
+#include <iostream>
+#include <cmath>
+#include <chrono>
+
+double func45(double x) {
+    return 1.0 / (1.0 + x);
+}
+
+int main() {
+    auto start = std::chrono::high_resolution_clock::now();
+    
+    const int n = 20;
+    double a = 0.0, b = 1.0;
+    double R[n][n];
+    
+    double h = b - a;
+    R[0][0] = (h / 2.0) * (func45(a) + func45(b));
+    
+    for(int i = 1; i < n; i++) {
+        h /= 2.0;
+        double sum = 0.0;
+        
+        for(int k = 1; k <= pow(2, i-1); k++) {
+            sum += func45(a + (2*k - 1) * h);
+        }
+        
+        R[i][0] = 0.5 * R[i-1][0] + h * sum;
+        
+        for(int j = 1; j <= i; j++) {
+            R[i][j] = R[i][j-1] + (R[i][j-1] - R[i-1][j-1]) / (pow(4, j) - 1);
+        }
+    }
+    
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end - start;
+    
+    std::cout << "程序45 - 龙贝格积分: ∫1/(1+x)dx (0→1) = " << R[n-1][n-1] << std::endl;
+    std::cout << "理论值: " << log(2.0) << std::endl;
+    std::cout << "运行时间: " << elapsed.count() << "秒" << std::endl;
+    
+    return 0;
+}
+```
+
+**程序46: 切比雪夫积分法**
+
+```
+#include <iostream>
+#include <cmath>
+#include <chrono>
+
+double func46(double x) {
+    return sqrt(1.0 - x * x);
+}
+
+int main() {
+    auto start = std::chrono::high_resolution_clock::now();
+    
+    const int n = 1000;
+    double sum = 0.0;
+    
+    for(int i = 0; i < n; i++) {
+        double theta = M_PI * (2*i + 1) / (2*n);
+        double x = cos(theta);
+        sum += func46(x);
+    }
+    
+    sum *= M_PI / n;
+    
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end - start;
+    
+    std::cout << "程序46 - 切比雪夫积分: ∫√(1-x²)dx (-1→1) = " << sum << std::endl;
+    std::cout << "理论值(半圆面积): " << M_PI / 2.0 << std::endl;
+    std::cout << "运行时间: " << elapsed.count() << "秒" << std::endl;
+    
+    return 0;
+}
+```
+
+**程序47: 傅里叶级数计算**
+
+```
+#include <iostream>
+#include <cmath>
+#include <chrono>
+
+int main() {
+    auto start = std::chrono::high_resolution_clock::now();
+    
+    const int n = 1000;
+    double x = 0.5;
+    double sum = 0.0;
+    
+    for(int k = 1; k <= n; k++) {
+        sum += sin(2.0 * M_PI * k * x) / k;
+    }
+    
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end - start;
+    
+    std::cout << "程序47 - 傅里叶级数部分和: " << sum << std::endl;
+    std::cout << "运行时间: " << elapsed.count() << "秒" << std::endl;
+    
+    return 0;
+}
+```
+
+**程序48: 数值积分误差估计**
+
+```
+#include <iostream>
+#include <cmath>
+#include <chrono>
+
+double func48(double x) {
+    return sin(x) * sin(x);
+}
+
+int main() {
+    auto start = std::chrono::high_resolution_clock::now();
+    
+    const int n = 1000000;
+    double a = 0.0, b = M_PI;
+    double h = (b - a) / n;
+    
+    double trapezoidal = (func48(a) + func48(b)) / 2.0;
+    double midpoint = 0.0;
+    
+    for(int i = 1; i < n; i++) {
+        double x = a + i * h;
+        trapezoidal += func48(x);
+        
+        double x_mid = a + (i - 0.5) * h;
+        midpoint += func48(x_mid);
+    }
+    
+    trapezoidal *= h;
+    midpoint *= h;
+    
+    double error_estimate = fabs(trapezoidal - midpoint) / 3.0;
+    double result = (2.0 * trapezoidal + midpoint) / 3.0;
+    
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end - start;
+    
+    std::cout << "程序48 - 数值积分误差估计" << std::endl;
+    std::cout << "积分值: " << result << std::endl;
+    std::cout << "误差估计: " << error_estimate << std::endl;
+    std::cout << "运行时间: " << elapsed.count() << "秒" << std::endl;
+    
+    return 0;
+}
+```
+
+**程序49: 辛普森3/8法则**
+
+```
+#include <iostream>
+#include <cmath>
+#include <chrono>
+
+double func49(double x) {
+    return x * sin(x);
+}
+
+int main() {
+    auto start = std::chrono::high_resolution_clock::now();
+    
+    const int n = 999999;
+    if(n % 3 != 0) {
+        std::cout << "错误: n必须是3的倍数" << std::endl;
+        return 1;
+    }
+    
+    double a = 0.0, b = M_PI;
+    double h = (b - a) / n;
+    double sum = func49(a) + func49(b);
+    
+    for(int i = 1; i < n; i++) {
+        double x = a + i * h;
+        if(i % 3 == 0) {
+            sum += 2.0 * func49(x);
+        } else {
+            sum += 3.0 * func49(x);
+        }
+    }
+    sum *= 3.0 * h / 8.0;
+    
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end - start;
+    
+    std::cout << "程序49 - 辛普森3/8法则: ∫x*sin(x)dx (0→π) = " << sum << std::endl;
+    std::cout << "运行时间: " << elapsed.count() << "秒" << std::endl;
+    
+    return 0;
+}
+```
+
+**程序50: 组合数值积分方法**
+
+```
+#include <iostream>
+#include <cmath>
+#include <chrono>
+
+double func50(double x) {
+    return log(1.0 + x) / (1.0 + x * x);
+}
+
+int main() {
+    auto start = std::chrono::high_resolution_clock::now();
+    
+    const int n = 1000000;
+    double a = 0.0, b = 1.0;
+    double h = (b - a) / n;
+    
+    double trapezoidal = (func50(a) + func50(b)) / 2.0;
+    double simpson = func50(a) + func50(b);
+    
+    for(int i = 1; i < n; i++) {
+        double x = a + i * h;
+        trapezoidal += func50(x);
+        
+        if(i % 2 == 0) {
+            simpson += 2.0 * func50(x);
+        } else {
+            simpson += 4.0 * func50(x);
+        }
+    }
+    
+    trapezoidal *= h;
+    simpson *= h / 3.0;
+    
+    double result = (2.0 * simpson + trapezoidal) / 3.0;
+    
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end - start;
+    
+    std::cout << "程序50 - 组合数值积分: ∫ln(1+x)/(1+x²)dx (0→1) = " << result << std::endl;
+    std::cout << "运行时间: " << elapsed.count() << "秒" << std::endl;
+    
+    return 0;
+}
+```
