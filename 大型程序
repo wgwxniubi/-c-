@@ -1,0 +1,2609 @@
+
+
+
+
+# 大型浮点数运算程序案例集
+
+## 1. 结构力学分析程序
+
+```c
+#include <iostream>
+#include <cmath>
+using namespace std;
+
+class StructuralAnalysis {
+public:
+    void calculateStressDistribution() {
+        // 节点力和材料属性变量
+        float node1_force_x, node1_force_y, node1_force_z, node1_displacement_x, node1_displacement_y, node1_displacement_z;
+        float node2_force_x, node2_force_y, node2_force_z, node2_displacement_x, node2_displacement_y, node2_displacement_z;
+        float node3_force_x, node3_force_y, node3_force_z, node3_displacement_x, node3_displacement_y, node3_displacement_z;
+        float youngs_modulus, poissons_ratio, density, cross_section_area, moment_of_inertia;
+        float thermal_expansion, temperature_change, thermal_stress, axial_stress, bending_stress;
+        
+        // 矩阵计算变量
+        float stiffness_matrix[6][6], mass_matrix[6][6], global_matrix[12][12];
+        float force_vector[12], displacement_vector[12], reaction_vector[12];
+        float stress_tensor[3][3], strain_tensor[3][3], principal_stresses[3];
+        float von_mises_stress, max_shear_stress, safety_factor, yield_strength;
+        
+        // 初始化变量
+        youngs_modulus = 2.1e11f;
+        poissons_ratio = 0.3f;
+        density = 7850.0f;
+        cross_section_area = 0.01f;
+        
+        // 力学计算过程
+        for(int i = 0; i < 100; i++) {
+            float load_factor = i * 0.01f;
+            // 计算应力和位移
+            axial_stress = load_factor * 100000.0f / cross_section_area;
+            bending_stress = axial_stress * 0.5f;
+            von_mises_stress = sqrt(axial_stress*axial_stress + 3*bending_stress*bending_stress);
+            
+            // 累加总变形能
+            float strain_energy = 0.0f;
+            for(int j = 0; j < 3; j++) {
+                strain_energy += 0.5f * youngs_modulus * strain_tensor[j][j] * strain_tensor[j][j];
+            }
+        }
+        
+        cout << "最终冯米斯应力: " << von_mises_stress << " Pa" << endl;
+        cout << "安全系数: " << yield_strength / von_mises_stress << endl;
+    }
+};
+
+int main() {c
+    StructuralAnalysis analysis;
+    analysis.calculateStressDistribution();
+    return 0;
+}
+```
+
+## 2. 流体动力学模拟
+
+```c
+#include <iostream>
+#include <vector>
+using namespace std;
+
+class FluidDynamics {
+private:
+    static const int GRID_SIZE = 10;
+    
+public:
+    void simulateFlow() {
+        // 流体属性变量
+        float density, viscosity, pressure, temperature, specific_heat;
+        float thermal_conductivity, velocity_x, velocity_y, velocity_z;
+        float reynolds_number, mach_number, prandtl_number, nusselt_number;
+        
+        // 网格变量
+        float pressure_field[GRID_SIZE][GRID_SIZE][GRID_SIZE];
+        float velocity_field_x[GRID_SIZE][GRID_SIZE][GRID_SIZE];
+        float velocity_field_y[GRID_SIZE][GRID_SIZE][GRID_SIZE];
+        float velocity_field_z[GRID_SIZE][GRID_SIZE][GRID_SIZE];
+        float temperature_field[GRID_SIZE][GRID_SIZE][GRID_SIZE];
+        
+        // 边界条件变量
+        float inlet_velocity, outlet_pressure, wall_temperature;
+        float turbulence_intensity, mixing_length, eddy_viscosity;
+        
+        // 时间步进变量
+        float time_step, total_time, current_time;
+        float convergence_residual, max_residual, min_residual;
+        
+        // 初始化流场
+        density = 1.225f;
+        viscosity = 1.7894e-5f;
+        inlet_velocity = 10.0f;
+        
+        // 模拟循环
+        for(int iter = 0; iter < 1000; iter++) {
+            float total_kinetic_energy = 0.0f;
+            
+            // 更新流场变量
+            for(int i = 0; i < GRID_SIZE; i++) {
+                for(int j = 0; j < GRID_SIZE; j++) {
+                    for(int k = 0; k < GRID_SIZE; k++) {
+                        // 简化的Navier-Stokes计算
+                        pressure_field[i][j][k] = calculatePressure(i, j, k);
+                        velocity_field_x[i][j][k] = calculateVelocityX(i, j, k);
+                        total_kinetic_energy += 0.5f * density * 
+                            (velocity_field_x[i][j][k]*velocity_field_x[i][j][k]);
+                    }
+                }
+            }
+            
+            if(iter % 100 == 0) {
+                cout << "迭代 " << iter << ", 总动能: " << total_kinetic_energy << endl;
+            }
+        }
+    }
+    
+private:
+    float calculatePressure(int i, int j, int k) {
+        return i * j * k * 0.001f;
+    }
+    
+    float calculateVelocityX(int i, int j, int k) {c
+        return (i + j + k) * 0.1f;
+    }
+};
+
+int main() {
+    FluidDynamics simulation;
+    simulation.simulateFlow();
+    return 0;
+}
+```
+
+## 3. 电力系统负载潮流计算
+
+```c
+#include <iostream>
+#include <complex>
+#include <cmath>
+using namespace std;
+
+class PowerFlow {
+private:
+    static const int BUS_COUNT = 15;
+    
+public:
+    void calculatePowerFlow() {
+        // 母线变量
+        float bus_voltage[BUS_COUNT], bus_angle[BUS_COUNT];
+        float bus_active_power[BUS_COUNT], bus_reactive_power[BUS_COUNT];
+        float bus_load_active[BUS_COUNT], bus_load_reactive[BUS_COUNT];
+        float bus_generation_active[BUS_COUNT], bus_generation_reactive[BUS_COUNT];
+        
+        // 线路变量
+        float line_resistance[BUS_COUNT][BUS_COUNT];
+        float line_reactance[BUS_COUNT][BUS_COUNT];
+        float line_conductance[BUS_COUNT][BUS_COUNT];
+        float line_susceptance[BUS_COUNT][BUS_COUNT];
+        float line_power_flow[BUS_COUNT][BUS_COUNT];
+        
+        // 变压器变量
+        float transformer_tap_ratio[BUS_COUNT][BUS_COUNT];
+        float transformer_phase_shift[BUS_COUNT][BUS_COUNT];
+        float transformer_impedance[BUS_COUNT][BUS_COUNT];
+        
+        // 收敛判断变量
+        float power_mismatch[BUS_COUNT], voltage_mismatch[BUS_COUNT];
+        float max_power_mismatch, max_voltage_mismatch;
+        float convergence_tolerance = 1e-6f;
+        int iteration_count = 0;
+        bool converged = false;
+        
+        // 初始化电力系统参数
+        initializeSystemParameters(bus_voltage, bus_angle, line_resistance, line_reactance);
+        
+        // 潮流计算迭代
+        while(!converged && iteration_count < 100) {
+            max_power_mismatch = 0.0f;
+            max_voltage_mismatch = 0.0f;
+            
+            // 计算功率不平衡量
+            for(int i = 0; i < BUS_COUNT; i++) {
+                power_mismatch[i] = calculatePowerMismatch(i, bus_voltage, bus_angle,
+                    line_resistance, line_reactance);
+                max_power_mismatch = max(max_power_mismatch, abs(power_mismatch[i]));
+            }
+            
+            // 更新电压和相角
+            for(int i = 0; i < BUS_COUNT; i++) {
+                float voltage_correction = calculateVoltageCorrection(i, power_mismatch[i]);
+                float angle_correction = calculateAngleCorrection(i, power_mismatch[i]);
+                
+                bus_voltage[i] += voltage_correction;
+                bus_angle[i] += angle_correction;
+                
+                voltage_mismatch[i] = abs(voltage_correction);
+                max_voltage_mismatch = max(max_voltage_mismatch, voltage_mismatch[i]);
+            }
+            
+            converged = (max_power_mismatch < convergence_tolerance) && 
+                       (max_voltage_mismatch < convergence_tolerance);
+            iteration_count++;
+            
+            cout << "迭代 " << iteration_count << ": 最大功率偏差=" 
+                 << max_power_mismatch << endl;
+        }
+        
+        cout << "潮流计算完成，共迭代 " << iteration_count << " 次" << endl;
+    }
+    
+private:
+    void initializeSystemParameters(float bus_voltage[], float bus_angle[],
+                                   float line_resistance[][BUS_COUNT], 
+                                   float line_reactance[][BUS_COUNT]) {
+        for(int i = 0; i < BUS_COUNT; i++) {
+            bus_voltage[i] = 1.0f;
+            bus_angle[i] = 0.0f;
+        }
+        
+        for(int i = 0; i < BUS_COUNT; i++) {
+            for(int j = 0; j < BUS_COUNT; j++) {
+                line_resistance[i][j] = 0.01f;
+                line_reactance[i][j] = 0.1f;
+            }
+        }
+    }
+    
+    float calculatePowerMismatch(int bus, float bus_voltage[], float bus_angle[],
+                                float line_resistance[][BUS_COUNT],
+                                float line_reactance[][BUS_COUNT]) {
+        return 0.0f; // 简化实现
+    }
+    
+    float calculateVoltageCorrection(int bus, float power_mismatch) {
+        return power_mismatch * 0.001f;
+    }
+    
+    float calculateAngleCorrection(int bus, float power_mismatch) {
+        return power_mismatch * 0.0001f;
+    }
+};
+
+int main() {c
+    PowerFlow power_flow;
+    power_flow.calculatePowerFlow();
+    return 0;
+}
+```
+
+## 4. 热传导模拟程序
+
+```c
+import numpy as np
+
+class HeatTransferSimulation:
+    def __init__(self, grid_size=20, time_steps=1000):
+        self.grid_size = grid_size
+        self.time_steps = time_steps
+        self.thermal_diffusivity = 0.01
+        self.delta_x = 0.1
+        self.delta_t = 0.01
+        
+    def simulate_heat_transfer(self):
+        # 温度场变量
+        temperature = np.zeros((self.grid_size, self.grid_size))
+        temperature_new = np.zeros((self.grid_size, self.grid_size))
+        heat_flux_x = np.zeros((self.grid_size, self.grid_size))
+        heat_flux_y = np.zeros((self.grid_size, self.grid_size))
+        
+        # 材料属性变量
+        thermal_conductivity = np.zeros((self.grid_size, self.grid_size))
+        specific_heat = np.zeros((self.grid_size, self.grid_size))
+        density = np.zeros((self.grid_size, self.grid_size))
+        
+        # 边界条件变量
+        boundary_temperature_top = 100.0
+        boundary_temperature_bottom = 0.0
+        boundary_temperature_left = 50.0
+        boundary_temperature_right = 25.0
+        
+        # 热源变量
+        heat_source = np.zeros((self.grid_size, self.grid_size))
+        internal_energy = np.zeros((self.grid_size, self.grid_size))
+        temperature_gradient_x = np.zeros((self.grid_size, self.grid_size))
+        temperature_gradient_y = np.zeros((self.grid_size, self.grid_size))
+        
+        # 初始化温度场和材料属性
+        for i in range(self.grid_size):
+            for j in range(self.grid_size):
+                thermal_conductivity[i][j] = 50.0  # W/m·K
+                specific_heat[i][j] = 450.0  # J/kg·K
+                density[i][j] = 7800.0  # kg/m³
+                
+                # 设置边界条件
+                if i == 0:  # 上边界
+                    temperature[i][j] = boundary_temperature_top
+                elif i == self.grid_size-1:  # 下边界
+                    temperature[i][j] = boundary_temperature_bottom
+                elif j == 0:  # 左边界
+                    temperature[i][j] = boundary_temperature_left
+                elif j == self.grid_size-1:  # 右边界
+                    temperature[i][j] = boundary_temperature_right
+                else:
+                    temperature[i][j] = 20.0  # 初始温度
+                
+                # 设置内部热源
+                if 5 <= i <= 15 and 5 <= j <= 15:
+                    heat_source[i][j] = 1000.0  # W/m³
+        
+        # 时间步进模拟
+        for t in range(self.time_steps):
+            total_energy = 0.0
+            max_temperature = 0.0
+            
+            for i in range(1, self.grid_size-1):
+                for j in range(1, self.grid_size-1):
+                    # 计算温度梯度
+                    temperature_gradient_x[i][j] = (temperature[i][j+1] - temperature[i][j-1]) / (2 * self.delta_x)
+                    temperature_gradient_y[i][j] = (temperature[i+1][j] - temperature[i-1][j]) / (2 * self.delta_x)
+                    
+                    # 计算热通量（傅里叶定律）
+                    heat_flux_x[i][j] = -thermal_conductivity[i][j] * temperature_gradient_x[i][j]
+                    heat_flux_y[i][j] = -thermal_conductivity[i][j] * temperature_gradient_y[i][j]
+                    
+                    # 更新温度（热传导方程）
+                    laplacian = (temperature[i][j+1] + temperature[i][j-1] + 
+                                temperature[i+1][j] + temperature[i-1][j] - 4 * temperature[i][j]) / (self.delta_x ** 2)
+                    
+                    temperature_new[i][j] = (temperature[i][j] + 
+                        self.thermal_diffusivity * self.delta_t * laplacian +
+                        (heat_source[i][j] * self.delta_t) / 
+                        (density[i][j] * specific_heat[i][j]))
+                    
+                    # 统计信息
+                    total_energy += temperature_new[i][j] * density[i][j] * specific_heat[i][j]
+                    max_temperature = max(max_temperature, temperature_new[i][j])
+            
+            # 更新温度场
+            temperature = np.copy(temperature_new)
+            
+            if t % 100 == 0:
+                print(f"时间步 {t}: 最高温度={max_temperature:.2f}°C, 总能量={total_energy:.2f}J")
+        
+        return temperature
+
+# 运行模拟
+if __name__ == "__main__":
+    simulation = HeatTransferSimulation()
+    final_temperature = simulation.simulate_heat_transfer()
+    print(f"模拟完成，最终温度场形状: {final_temperature.shape}")
+```
+
+## 5. 化学反应动力学模拟
+
+```c
+#include <iostream>
+#include <cmath>
+using namespace std;
+
+class ChemicalReaction {
+private:
+    static const int SPECIES_COUNT = 15;
+    static const int REACTION_COUNT = 30;
+    
+public:
+    void simulateReactions() {
+        // 化学物质浓度变量
+        float concentration[SPECIES_COUNT], concentration_new[SPECIES_COUNT];
+        float reaction_rate[REACTION_COUNT], rate_constant[REACTION_COUNT];
+        float activation_energy[REACTION_COUNT], pre_exponential[REACTION_COUNT];
+        
+        // 热力学变量
+        float temperature, pressure, volume, gas_constant;
+        float enthalpy_change[REACTION_COUNT], entropy_change[REACTION_COUNT];
+        float gibbs_free_energy[REACTION_COUNT], equilibrium_constant[REACTION_COUNT];
+        
+        // 时间相关变量
+        float time_step, total_time, current_time;
+        float conversion_rate[SPECIES_COUNT], selectivity[SPECIES_COUNT];
+        float yield[SPECIES_COUNT], space_time_yield;
+        
+        // 反应器变量
+        float reactor_volume, flow_rate, residence_time;
+        float heat_transfer_coefficient, cooling_temperature;
+        float temperature_profile[100], pressure_profile[100];
+        
+        // 初始化反应参数
+        temperature = 298.15f;
+        pressure = 101325.0f;
+        gas_constant = 8.314f;
+        reactor_volume = 0.001f;
+        
+        // 模拟化学反应动力学
+        for(int step = 0; step < 1000; step++) {
+            float total_reaction_heat = 0.0f;
+            
+            // 计算每个反应的反应速率
+            for(int r = 0; r < REACTION_COUNT; r++) {
+                // Arrhenius方程计算速率常数
+                rate_constant[r] = pre_exponential[r] * 
+                    exp(-activation_energy[r] / (gas_constant * temperature));
+                
+                // 计算反应热
+                enthalpy_change[r] = calculateReactionEnthalpy(r);
+                total_reaction_heat += enthalpy_change[r] * reaction_rate[r];
+            }
+            
+            // 更新浓度
+            for(int s = 0; s < SPECIES_COUNT; s++) {
+                float production_rate = 0.0f;
+                float consumption_rate = 0.0f;
+                
+                // 计算净生成速率
+                for(int r = 0; r < REACTION_COUNT; r++) {
+                    float stoichiometric = getStoichiometric(s, r);
+                    if(stoichiometric > 0) {
+                        production_rate += stoichiometric * reaction_rate[r];
+                    } else {
+                        consumption_rate += abs(stoichiometric) * reaction_rate[r];
+                    }
+                }
+                
+                concentration_new[s] = concentration[s] + 
+                    time_step * (production_rate - consumption_rate);
+            }
+            
+            // 更新温度（考虑反应热）
+            float heat_removal = heat_transfer_coefficient * 
+                (temperature - cooling_temperature);
+            temperature += time_step * (total_reaction_heat - heat_removal) / 
+                (calculateHeatCapacity() * reactor_volume);
+            
+            if(step % 100 == 0) {
+                cout << "时间步 " << step << ": 温度=" << temperature 
+                     << "K, 总反应热=" << total_reaction_heat << " J/s" << endl;
+            }
+        }
+    }
+    
+private:
+    float calculateReactionEnthalpy(int reaction) {
+        return reaction * 1000.0f; // 简化实现
+    }
+    
+    float getStoichiometric(int species, int reaction) {
+        return (species + reaction) % 3 - 1; // 简化实现
+    }
+    
+    float calculateHeatCapacity() {
+        return 1000.0f; // 简化实现
+    }
+};
+
+int main() {
+    ChemicalReaction reaction;
+    reaction.simulateReactions();
+    return 0;
+}
+```
+
+## 6. 数据挖掘聚类分析
+
+```c
+#include <iostream>
+#include <cmath>
+#include <vector>
+using namespace std;
+
+class DataMining {
+private:
+    static const int DATA_POINTS = 1000;
+    static const int FEATURES = 10;
+    static const int CLUSTERS = 5;
+    
+public:
+    void performClustering() {
+        // 数据集变量
+        float dataset[DATA_POINTS][FEATURES];
+        float normalized_dataset[DATA_POINTS][FEATURES];
+        float cluster_centers[CLUSTERS][FEATURES];
+        float previous_centers[CLUSTERS][FEATURES];
+        
+        // 聚类相关变量
+        float cluster_assignments[DATA_POINTS];
+        float distance_matrix[DATA_POINTS][CLUSTERS];
+        float membership_probabilities[DATA_POINTS][CLUSTERS];
+        
+        // 统计量变量
+        float feature_means[FEATURES], feature_stddev[FEATURES];
+        float covariance_matrix[FEATURES][FEATURES];
+        float correlation_matrix[FEATURES][FEATURES];
+        float principal_components[FEATURES][FEATURES];
+        float eigenvalues[FEATURES], explained_variance[FEATURES];
+        
+        // 聚类质量评估变量
+        float within_cluster_variance[CLUSTERS];
+        float between_cluster_variance, total_variance;
+        float silhouette_scores[DATA_POINTS], average_silhouette;
+        float davies_bouldin_index, calinski_harabasz_index;
+        float cluster_compactness[CLUSTERS], cluster_separation[CLUSTERS];
+        
+        // 算法参数变量
+        float learning_rate = 0.01f;
+        float convergence_threshold = 1e-6f;
+        float fuzziness_parameter = 2.0f;
+        float maximum_iterations = 100.0f;
+        float current_iteration = 0.0f;
+        
+        // 初始化数据集（随机生成测试数据）
+        initializeDataset(dataset);
+        
+        // 数据标准化
+        normalizeDataset(dataset, normalized_dataset, feature_means, feature_stddev);
+        
+        // 初始化聚类中心
+        initializeClusterCenters(normalized_dataset, cluster_centers);
+        
+        // K-means聚类算法
+        bool converged = false;
+        float max_center_shift = 0.0f;
+        
+        while(!converged && current_iteration < maximum_iterations) {
+            // 保存上一轮聚类中心
+            for(int k = 0; k < CLUSTERS; k++) {
+                for(int f = 0; f < FEATURES; f++) {
+                    previous_centers[k][f] = cluster_centers[k][f];
+                }
+            }
+            
+            // 分配数据点到最近聚类中心
+            for(int i = 0; i < DATA_POINTS; i++) {
+                float min_distance = 1e9f;
+                int best_cluster = 0;
+                
+                for(int k = 0; k < CLUSTERS; k++) {
+                    float distance = 0.0f;
+                    for(int f = 0; f < FEATURES; f++) {
+                        float diff = normalized_dataset[i][f] - cluster_centers[k][f];
+                        distance += diff * diff;
+                    }
+                    distance_matrix[i][k] = sqrt(distance);
+                    
+                    if(distance < min_distance) {
+                        min_distance = distance;
+                        best_cluster = k;
+                    }
+                }
+                cluster_assignments[i] = best_cluster;
+            }
+            
+            // 更新聚类中心
+            for(int k = 0; k < CLUSTERS; k++) {
+                int point_count = 0;
+                float new_center[FEATURES] = {0};
+                
+                for(int i = 0; i < DATA_POINTS; i++) {
+                    if(cluster_assignments[i] == k) {
+                        point_count++;
+                        for(int f = 0; f < FEATURES; f++) {
+                            new_center[f] += normalized_dataset[i][f];
+                        }
+                    }
+                }
+                
+                if(point_count > 0) {
+                    for(int f = 0; f < FEATURES; f++) {
+                        cluster_centers[k][f] = new_center[f] / point_count;
+                    }
+                }
+            }
+            
+            // 检查收敛性
+            max_center_shift = 0.0f;
+            for(int k = 0; k < CLUSTERS; k++) {
+                float shift = 0.0f;
+                for(int f = 0; f < FEATURES; f++) {
+                    float diff = cluster_centers[k][f] - previous_centers[k][f];
+                    shift += diff * diff;
+                }
+                max_center_shift = max(max_center_shift, sqrt(shift));
+            }
+            
+            converged = (max_center_shift < convergence_threshold);
+            current_iteration++;
+            
+            cout << "迭代 " << current_iteration << ": 最大中心移动=" 
+                 << max_center_shift << endl;
+        }
+        
+        // 计算聚类质量指标
+        calculateClusterQuality(normalized_dataset, cluster_assignments, 
+                               cluster_centers, silhouette_scores, 
+                               average_silhouette, davies_bouldin_index);
+        
+        cout << "聚类完成: 平均轮廓系数=" << average_silhouette 
+             << ", DB指数=" << davies_bouldin_index << endl;
+    }
+    
+private:
+    void initializeDataset(float dataset[DATA_POINTS][FEATURES]) {
+        for(int i = 0; i < DATA_POINTS; i++) {
+            for(int f = 0; f < FEATURES; f++) {
+                dataset[i][f] = static_cast<float>(rand()) / RAND_MAX * 100.0f;
+            }
+        }
+    }
+    
+    void normalizeDataset(float input[DATA_POINTS][FEATURES], 
+                         float output[DATA_POINTS][FEATURES],
+                         float means[FEATURES], float stddev[FEATURES]) {
+        // 计算均值和标准差
+        for(int f = 0; f < FEATURES; f++) {
+            float sum = 0.0f, sum_sq = 0.0f;
+            
+            for(int i = 0; i < DATA_POINTS; i++) {
+                sum += input[i][f];
+                sum_sq += input[i][f] * input[i][f];
+            }
+            
+            means[f] = sum / DATA_POINTS;
+            stddev[f] = sqrt(sum_sq / DATA_POINTS - means[f] * means[f]);
+            
+            // 标准化数据
+            for(int i = 0; i < DATA_POINTS; i++) {
+                output[i][f] = (input[i][f] - means[f]) / stddev[f];
+            }
+        }
+    }
+    
+    void initializeClusterCenters(float dataset[DATA_POINTS][FEATURES],
+                                float centers[CLUSTERS][FEATURES]) {
+        // 随机选择初始聚类中心
+        for(int k = 0; k < CLUSTERS; k++) {
+            int random_point = rand() % DATA_POINTS;
+            for(int f = 0; f < FEATURES; f++) {
+                centers[k][f] = dataset[random_point][f];
+            }
+        }
+    }
+    
+    void calculateClusterQuality(float dataset[DATA_POINTS][FEATURES],
+                               float assignments[DATA_POINTS],
+                               float centers[CLUSTERS][FEATURES],
+                               float silhouettes[DATA_POINTS],
+                               float& avg_silhouette,
+                               float& db_index) {
+        // 简化实现聚类质量计算
+        avg_silhouette = 0.0f;
+        db_index = 0.0f;
+        
+        for(int i = 0; i < DATA_POINTS; i++) {
+            silhouettes[i] = static_cast<float>(rand()) / RAND_MAX;
+            avg_silhouette += silhouettes[i];
+        }
+        
+        avg_silhouette /= DATA_POINTS;
+        db_index = 1.5f; // 示例值
+    }
+};
+
+int main() {
+    DataMining mining;
+    mining.performClustering();
+    return 0;
+}
+```
+
+## 7. 大规模矩阵运算系统
+
+```c
+#include <iostream>
+#include <cmath>
+#include <iomanip>
+
+#define MATRIX_SIZE 10
+#define ARRAY_SIZE 50
+
+class LargeMatrixCalculator {
+private:
+    // 大量浮点变量定义
+    float matrixA[MATRIX_SIZE][MATRIX_SIZE];
+    float matrixB[MATRIX_SIZE][MATRIX_SIZE];
+    float resultMatrix[MATRIX_SIZE][MATRIX_SIZE];
+    float tempStorage[MATRIX_SIZE][MATRIX_SIZE];
+    float eigenValues[MATRIX_SIZE];
+    float eigenVectors[MATRIX_SIZE][MATRIX_SIZE];
+    float determinantHistory[ARRAY_SIZE];
+    float traceValues[ARRAY_SIZE];
+    float conditionNumbers[ARRAY_SIZE];
+    float singularValues[MATRIX_SIZE];
+    float luDecompositionL[MATRIX_SIZE][MATRIX_SIZE];
+    float luDecompositionU[MATRIX_SIZE][MATRIX_SIZE];
+    float qrDecompositionQ[MATRIX_SIZE][MATRIX_SIZE];
+    float qrDecompositionR[MATRIX_SIZE][MATRIX_SIZE];
+    float choleskyMatrix[MATRIX_SIZE][MATRIX_SIZE];
+    float hessenbergForm[MATRIX_SIZE][MATRIX_SIZE];
+    float schurDecomposition[MATRIX_SIZE][MATRIX_SIZE];
+    float jacobiRotation[MATRIX_SIZE][MATRIX_SIZE];
+    float givensRotation[MATRIX_SIZE][MATRIX_SIZE];
+    float householderReflector[MATRIX_SIZE][MATRIX_SIZE];
+    float gramSchmidtVectors[MATRIX_SIZE][MATRIX_SIZE];
+    float krylovSubspace[MATRIX_SIZE][MATRIX_SIZE];
+    float arnoldiVectors[MATRIX_SIZE][MATRIX_SIZE];
+    float lanczosVectors[MATRIX_SIZE][MATRIX_SIZE];
+    float powerIterationVector[MATRIX_SIZE];
+    float inverseIterationVector[MATRIX_SIZE];
+    float rayleighQuotient[ARRAY_SIZE];
+    float subspaceIteration[MATRIX_SIZE][MATRIX_SIZE];
+    float jacobiMethod[MATRIX_SIZE][MATRIX_SIZE];
+    float gaussSeidel[MATRIX_SIZE][MATRIX_SIZE];
+    float sorMethod[MATRIX_SIZE][MATRIX_SIZE];
+    float conjugateGradient[MATRIX_SIZE];
+    float minResidual[MATRIX_SIZE];
+    float gmresVectors[MATRIX_SIZE][MATRIX_SIZE];
+    float bcgStab[MATRIX_SIZE];
+    float qmrMethod[MATRIX_SIZE];
+    float chebyshevAcceleration[MATRIX_SIZE];
+    float multigridVectors[MATRIX_SIZE][MATRIX_SIZE];
+    float domainDecomposition[MATRIX_SIZE][MATRIX_SIZE];
+    float preconditioner[MATRIX_SIZE][MATRIX_SIZE];
+    float matrixExponential[MATRIX_SIZE][MATRIX_SIZE];
+    float matrixLogarithm[MATRIX_SIZE][MATRIX_SIZE];
+    float matrixSquareRoot[MATRIX_SIZE][MATRIX_SIZE];
+    float matrixSine[MATRIX_SIZE][MATRIX_SIZE];
+    float matrixCosine[MATRIX_SIZE][MATRIX_SIZE];
+    float matrixFunctions[MATRIX_SIZE][MATRIX_SIZE];
+    float perturbationAnalysis[MATRIX_SIZE][MATRIX_SIZE];
+    float sensitivityMatrix[MATRIX_SIZE][MATRIX_SIZE];
+    float errorAnalysis[MATRIX_SIZE][MATRIX_SIZE];
+    float stabilityFactors[ARRAY_SIZE];
+    float convergenceRates[ARRAY_SIZE];
+    float residualNorms[ARRAY_SIZE];
+    float relativeErrors[ARRAY_SIZE];
+    float absoluteErrors[ARRAY_SIZE];
+    float forwardError[ARRAY_SIZE];
+    float backwardError[ARRAY_SIZE];
+    float machinePrecision = 1.0e-16f;
+    float toleranceLevel = 1.0e-10f;
+    float convergenceThreshold = 1.0e-8f;
+    float spectralRadius;
+    float matrixNorm1;
+    float matrixNormInf;
+    float matrixNormFrobenius;
+    float conditionNumber;
+    float determinantValue;
+    float traceValue;
+    float rankEstimate;
+    float nullityValue;
+    float spectralAbscissa;
+    float numericalRadius;
+    float growthFactor;
+    float pivotGrowth;
+    float illConditioningMeasure;
+    float distanceToSingularity;
+    float pseudospectrumRadius;
+    float numericalStabilityIndex;
+    float componentwiseCondition;
+    float structuredCondition;
+    float backwardStabilityFactor;
+    
+    int iterationCount;
+    int maxIterations = 1000;
+    int matrixSize = MATRIX_SIZE;
+    int algorithmChoice;
+    int precisionLevel;
+    int decompositionType;
+    int eigenvalueMethod;
+    int linearSolverType;
+    int preconditionerType;
+    int convergenceTest;
+
+public:
+    LargeMatrixCalculator() {
+        initializeVariables();
+    }
+    
+    void initializeVariables() {
+        // 初始化所有浮点变量
+        spectralRadius = 0.0f;
+        matrixNorm1 = 0.0f;
+        matrixNormInf = 0.0f;
+        matrixNormFrobenius = 0.0f;
+        conditionNumber = 0.0f;
+        determinantValue = 0.0f;
+        traceValue = 0.0f;
+        iterationCount = 0;
+        
+        // 初始化矩阵和数组
+        for(int i = 0; i < MATRIX_SIZE; i++) {
+            for(int j = 0; j < MATRIX_SIZE; j++) {
+                matrixA[i][j] = static_cast<float>(rand()) / RAND_MAX * 10.0f;
+                matrixB[i][j] = static_cast<float>(rand()) / RAND_MAX * 10.0f;
+                resultMatrix[i][j] = 0.0f;
+            }
+            eigenValues[i] = 0.0f;
+            powerIterationVector[i] = static_cast<float>(rand()) / RAND_MAX;
+        }
+        
+        for(int i = 0; i < ARRAY_SIZE; i++) {
+            determinantHistory[i] = 0.0f;
+            traceValues[i] = 0.0f;
+        }
+    }
+    
+    void performMatrixOperations() {
+        // 矩阵乘法
+        matrixMultiplication();
+        
+        // 特征值计算
+        calculateEigenvalues();
+        
+        // 行列式计算
+        calculateDeterminant();
+        
+        // 矩阵分解
+        performLUDecomposition();
+        
+        // 输出结果
+        displayResults();
+    }
+    
+private:
+    void matrixMultiplication() {
+        for(int i = 0; i < MATRIX_SIZE; i++) {
+            for(int j = 0; j < MATRIX_SIZE; j++) {
+                resultMatrix[i][j] = 0.0f;
+                for(int k = 0; k < MATRIX_SIZE; k++) {
+                    resultMatrix[i][j] += matrixA[i][k] * matrixB[k][j];
+                }
+            }
+        }
+    }
+    
+    void calculateEigenvalues() {
+        // 简化版幂迭代法求特征值
+        float previousVector[MATRIX_SIZE];
+        float currentVector[MATRIX_SIZE];
+        float eigenvalue = 0.0f;
+        float previousEigenvalue = 0.0f;
+        float error = 1.0f;
+        
+        // 初始化向量
+        for(int i = 0; i < MATRIX_SIZE; i++) {
+            currentVector[i] = powerIterationVector[i];
+        }
+        
+        iterationCount = 0;
+        while(error > convergenceThreshold && iterationCount < maxIterations) {
+            // 保存前一次的结果
+            for(int i = 0; i < MATRIX_SIZE; i++) {
+                previousVector[i] = currentVector[i];
+            }
+            previousEigenvalue = eigenvalue;
+            
+            // 矩阵乘以向量
+            for(int i = 0; i < MATRIX_SIZE; i++) {
+                currentVector[i] = 0.0f;
+                for(int j = 0; j < MATRIX_SIZE; j++) {
+                    currentVector[i] += matrixA[i][j] * previousVector[j];
+                }
+            }
+            
+            // 计算Rayleigh商（特征值近似）
+            float numerator = 0.0f;
+            float denominator = 0.0f;
+            for(int i = 0; i < MATRIX_SIZE; i++) {
+                numerator += currentVector[i] * previousVector[i];
+                denominator += previousVector[i] * previousVector[i];
+            }
+            eigenvalue = numerator / denominator;
+            
+            // 归一化向量
+            float norm = 0.0f;
+            for(int i = 0; i < MATRIX_SIZE; i++) {
+                norm += currentVector[i] * currentVector[i];
+            }
+            norm = sqrtf(norm);
+            for(int i = 0; i < MATRIX_SIZE; i++) {
+                currentVector[i] /= norm;
+            }
+            
+            // 计算误差
+            if(iterationCount > 0) {
+                error = fabsf(eigenvalue - previousEigenvalue);
+            }
+            
+            iterationCount++;
+        }
+        
+        eigenValues[0] = eigenvalue; // 存储最大特征值
+    }
+    
+    void calculateDeterminant() {
+        // 简化版行列式计算（仅适用于小矩阵）
+        if(MATRIX_SIZE == 2) {
+            determinantValue = matrixA[0][0] * matrixA[1][1] - matrixA[0][1] * matrixA[1][0];
+        } else if(MATRIX_SIZE == 3) {
+            determinantValue = matrixA[0][0] * (matrixA[1][1] * matrixA[2][2] - matrixA[1][2] * matrixA[2][1])
+                            - matrixA[0][1] * (matrixA[1][0] * matrixA[2][2] - matrixA[1][2] * matrixA[2][0])
+                            + matrixA[0][2] * (matrixA[1][0] * matrixA[2][1] - matrixA[1][1] * matrixA[2][0]);
+        } else {
+            // 对于大矩阵，使用对角线乘积近似
+            determinantValue = 1.0f;
+            for(int i = 0; i < MATRIX_SIZE; i++) {
+                determinantValue *= matrixA[i][i];
+            }
+        }
+    }
+    
+    void performLUDecomposition() {
+        // 简化版LU分解
+        for(int i = 0; i < MATRIX_SIZE; i++) {
+            for(int j = 0; j < MATRIX_SIZE; j++) {
+                if(i == j) {
+                    luDecompositionL[i][j] = 1.0f;
+                    luDecompositionU[i][j] = matrixA[i][j];
+                } else if(i > j) {
+                    luDecompositionL[i][j] = matrixA[i][j];
+                    luDecompositionU[i][j] = 0.0f;
+                } else {
+                    luDecompositionL[i][j] = 0.0f;
+                    luDecompositionU[i][j] = matrixA[i][j];
+                }
+            }
+        }
+    }
+    
+    void displayResults() {
+        std::cout << "=== 大规模矩阵运算结果 ===" << std::endl;
+        std::cout << "矩阵大小: " << MATRIX_SIZE << "x" << MATRIX_SIZE << std::endl;
+        std::cout << "最大特征值: " << std::setprecision(8) << eigenValues[0] << std::endl;
+        std::cout << "行列式值: " << std::setprecision(8) << determinantValue << std::endl;
+        std::cout << "迭代次数: " << iterationCount << std::endl;
+        std::cout << "收敛误差: " << std::scientific << convergenceThreshold << std::endl;
+        std::cout << "浮点变量总数: 100+" << std::endl;
+        std::cout << "==========================" << std::endl;
+    }
+};
+
+int main() {
+    LargeMatrixCalculator calculator;
+    calculator.performMatrixOperations();
+    return 0;
+}
+```
+
+## 8. 物理仿真粒子系统
+
+```c
+#include <iostream>
+#include <cmath>
+#include <vector>
+#include <iomanip>
+
+#define PARTICLE_COUNT 50
+#define SIMULATION_STEPS 100
+
+class ParticlePhysicsSimulation {
+private:
+    // 粒子系统相关变量
+    float particlePositionX[PARTICLE_COUNT];
+    float particlePositionY[PARTICLE_COUNT];
+    float particlePositionZ[PARTICLE_COUNT];
+    float particleVelocityX[PARTICLE_COUNT];
+    float particleVelocityY[PARTICLE_COUNT];
+    float particleVelocityZ[PARTICLE_COUNT];
+    float particleAccelerationX[PARTICLE_COUNT];
+    float particleAccelerationY[PARTICLE_COUNT];
+    float particleAccelerationZ[PARTICLE_COUNT];
+    float particleMass[PARTICLE_COUNT];
+    float particleCharge[PARTICLE_COUNT];
+    float particleRadius[PARTICLE_COUNT];
+    float forceFieldX[PARTICLE_COUNT];
+    float forceFieldY[PARTICLE_COUNT];
+    float forceFieldZ[PARTICLE_COUNT];
+    float gravitationalConstant = 6.67430e-11f;
+    float coulombConstant = 8.98755e9f;
+    float timeStep = 0.01f;
+    float simulationTime = 0.0f;
+    float totalEnergy[SIMULATION_STEPS];
+    float kineticEnergy[SIMULATION_STEPS];
+    float potentialEnergy[SIMULATION_STEPS];
+    float momentumX[SIMULATION_STEPS];
+    float momentumY[SIMULATION_STEPS];
+    float momentumZ[SIMULATION_STEPS];
+    float angularMomentumX[SIMULATION_STEPS];
+    float angularMomentumY[SIMULATION_STEPS];
+    float angularMomentumZ[SIMULATION_STEPS];
+    float centerOfMassX[SIMULATION_STEPS];
+    float centerOfMassY[SIMULATION_STEPS];
+    float centerOfMassZ[SIMULATION_STEPS];
+    float temperatureProfile[SIMULATION_STEPS];
+    float pressureField[PARTICLE_COUNT];
+    float densityField[PARTICLE_COUNT];
+    float viscosityCoefficient = 0.01f;
+    float dragCoefficient = 0.1f;
+    float restitutionCoefficient = 0.9f;
+    float frictionCoefficient = 0.2f;
+    float springConstant[PARTICLE_COUNT];
+    float dampingCoefficient[PARTICLE_COUNT];
+    float collisionTime[PARTICLE_COUNT];
+    float boundaryMinX = -10.0f, boundaryMaxX = 10.0f;
+    float boundaryMinY = -10.0f, boundaryMaxY = 10.0f;
+    float boundaryMinZ = -10.0f, boundaryMaxZ = 10.0f;
+    float externalForceX = 0.0f;
+    float externalForceY = -9.81f;
+    float externalForceZ = 0.0f;
+    float windVelocityX = 0.0f;
+    float windVelocityY = 0.0f;
+    float windVelocityZ = 0.0f;
+    float turbulenceIntensity = 0.1f;
+    float vortexStrength = 0.5f;
+    float magneticFieldX = 0.0f;
+    float magneticFieldY = 0.0f;
+    float magneticFieldZ = 1.0f;
+    float electricFieldX = 0.0f;
+    float electricFieldY = 0.0f;
+    float electricFieldZ = 0.0f;
+    float thermalConductivity = 0.01f;
+    float specificHeatCapacity = 1.0f;
+    float radiationCoefficient = 0.001f;
+    float phaseTransitionTemperature = 100.0f;
+    float surfaceTension = 0.072f;
+    float contactAngle = 45.0f;
+    float youngModulus = 1.0e9f;
+    float poissonRatio = 0.3f;
+    float yieldStrength = 1.0e6f;
+    float plasticStrain[PARTICLE_COUNT];
+    float stressTensorXX[PARTICLE_COUNT];
+    float stressTensorYY[PARTICLE_COUNT];
+    float stressTensorZZ[PARTICLE_COUNT];
+    float strainTensorXX[PARTICLE_COUNT];
+    float strainTensorYY[PARTICLE_COUNT];
+    float strainTensorZZ[PARTICLE_COUNT];
+    float deformationGradient[PARTICLE_COUNT][9];
+    float velocityGradient[PARTICLE_COUNT][9];
+    float spinTensor[PARTICLE_COUNT][9];
+    float vorticityField[PARTICLE_COUNT];
+    float streamFunction[PARTICLE_COUNT];
+    float velocityPotential[PARTICLE_COUNT];
+    float bernoulliConstant[PARTICLE_COUNT];
+    float machNumber[PARTICLE_COUNT];
+    float reynoldsNumber[PARTICLE_COUNT];
+    float froudeNumber[PARTICLE_COUNT];
+    float weberNumber[PARTICLE_COUNT];
+    float strouhalNumber[PARTICLE_COUNT];
+    float knudsenNumber[PARTICLE_COUNT];
+    float pecletNumber[PARTICLE_COUNT];
+    float nusseltNumber[PARTICLE_COUNT];
+    float prandtlNumber = 0.71f;
+    float schmidtNumber = 0.75f;
+    float lewisNumber = 1.0f;
+    float damkohlerNumber[PARTICLE_COUNT];
+    float thieleModulus[PARTICLE_COUNT];
+    float fourierNumber[PARTICLE_COUNT];
+    float biotNumber[PARTICLE_COUNT];
+    float grashofNumber[PARTICLE_COUNT];
+    float rayleighNumber[PARTICLE_COUNT];
+    float marangoniNumber[PARTICLE_COUNT];
+    float capillaryNumber[PARTICLE_COUNT];
+    float bondNumber[PARTICLE_COUNT];
+    float eotvosNumber[PARTICLE_COUNT];
+    float atwoodNumber[PARTICLE_COUNT];
+    float richardsonNumber[PARTICLE_COUNT];
+    float rossbyNumber[PARTICLE_COUNT];
+    float ekmanNumber[PARTICLE_COUNT];
+    float taylorNumber[PARTICLE_COUNT];
+    float hartmannNumber[PARTICLE_COUNT];
+    float stuartNumber[PARTICLE_COUNT];
+    float cowlingNumber[PARTICLE_COUNT];
+    float magneticReynoldsNumber[PARTICLE_COUNT];
+    float alfvenSpeed[PARTICLE_COUNT];
+    float plasmaBeta[PARTICLE_COUNT];
+    float lundquistNumber[PARTICLE_COUNT];
+    float debyeLength[PARTICLE_COUNT];
+    float gyroradius[PARTICLE_COUNT];
+    float cyclotronFrequency[PARTICLE_COUNT];
+    float plasmaFrequency[PARTICLE_COUNT];
+    float collisionFrequency[PARTICLE_COUNT];
+    float meanFreePath[PARTICLE_COUNT];
+    float knudsenLayer[PARTICLE_COUNT];
+    float accommodationCoefficient = 0.9f;
+    float evaporationRate[PARTICLE_COUNT];
+    float condensationRate[PARTICLE_COUNT];
+    float nucleationRate[PARTICLE_COUNT];
+    float growthRate[PARTICLE_COUNT];
+    float dissolutionRate[PARTICLE_COUNT];
+    float reactionRate[PARTICLE_COUNT];
+    float diffusionCoefficient[PARTICLE_COUNT];
+    float mobility[PARTICLE_COUNT];
+    float sedimentationVelocity[PARTICLE_COUNT];
+    float centrifugationSpeed = 1000.0f;
+    float coriolisParameter = 1.0e-4f;
+    float centrifugalForce[PARTICLE_COUNT];
+    float coriolisForceX[PARTICLE_COUNT];
+    float coriolisForceY[PARTICLE_COUNT];
+    float coriolisForceZ[PARTICLE_COUNT];
+    float eulerForceX[PARTICLE_COUNT];
+    float eulerForceY[PARTICLE_COUNT];
+    float eulerForceZ[PARTICLE_COUNT];
+    
+    int currentStep = 0;
+    int particleCount = PARTICLE_COUNT;
+
+public:
+    ParticlePhysicsSimulation() {
+        initializeParticles();
+    }
+    
+    void initializeParticles() {
+        for(int i = 0; i < PARTICLE_COUNT; i++) {
+            particlePositionX[i] = static_cast<float>(rand()) / RAND_MAX * 20.0f - 10.0f;
+            particlePositionY[i] = static_cast<float>(rand()) / RAND_MAX * 20.0f - 10.0f;
+            particlePositionZ[i] = static_cast<float>(rand()) / RAND_MAX * 20.0f - 10.0f;
+            
+            particleVelocityX[i] = static_cast<float>(rand()) / RAND_MAX * 2.0f - 1.0f;
+            particleVelocityY[i] = static_cast<float>(rand()) / RAND_MAX * 2.0f - 1.0f;
+            particleVelocityZ[i] = static_cast<float>(rand()) / RAND_MAX * 2.0f - 1.0f;
+            
+            particleMass[i] = static_cast<float>(rand()) / RAND_MAX * 10.0f + 1.0f;
+            particleCharge[i] = static_cast<float>(rand()) / RAND_MAX * 2.0f - 1.0f;
+            particleRadius[i] = static_cast<float>(rand()) / RAND_MAX * 0.5f + 0.1f;
+        }
+    }
+    
+    void runSimulation() {
+        for(int step = 0; step < SIMULATION_STEPS; step++) {
+            calculateForces();
+            integrateMotion();
+            handleCollisions();
+            calculateEnergyAndMomentum(step);
+            currentStep++;
+            simulationTime += timeStep;
+        }
+        displayResults();
+    }
+    
+private:
+    void calculateForces() {
+        for(int i = 0; i < PARTICLE_COUNT; i++) {
+            // 重力
+            float gravityX = 0.0f;
+            float gravityY = particleMass[i] * externalForceY;
+            float gravityZ = 0.0f;
+            
+            // 电磁力
+            float electromagneticX = particleCharge[i] * electricFieldX;
+            float electromagneticY = particleCharge[i] * electricFieldY;
+            float electromagneticZ = particleCharge[i] * electricFieldZ;
+            
+            // 粒子间作用力（简化版）
+            float interactionX = 0.0f, interactionY = 0.0f, interactionZ = 0.0f;
+            for(int j = 0; j < PARTICLE_COUNT; j++) {
+                if(i != j) {
+                    float dx = particlePositionX[j] - particlePositionX[i];
+                    float dy = particlePositionY[j] - particlePositionY[i];
+                    float dz = particlePositionZ[j] - particlePositionZ[i];
+                    float distanceSq = dx*dx + dy*dy + dz*dz + 0.01f; // 避免除零
+                    float distance = sqrtf(distanceSq);
+                    
+                    // 万有引力
+                    float gravityForce = gravitationalConstant * particleMass[i] * particleMass[j] / distanceSq;
+                    interactionX += gravityForce * dx / distance;
+                    interactionY += gravityForce * dy / distance;
+                    interactionZ += gravityForce * dz / distance;
+                    
+                    // 库仑力
+                    float coulombForce = coulombConstant * particleCharge[i] * particleCharge[j] / distanceSq;
+                    interactionX += coulombForce * dx / distance;
+                    interactionY += coulombForce * dy / distance;
+                    interactionZ += coulombForce * dz / distance;
+                }
+            }
+            
+            // 总力
+            forceFieldX[i] = gravityX + electromagneticX + interactionX;
+            forceFieldY[i] = gravityY + electromagneticY + interactionY;
+            forceFieldZ[i] = gravityZ + electromagneticZ + interactionZ;
+            
+            // 加速度
+            particleAccelerationX[i] = forceFieldX[i] / particleMass[i];
+            particleAccelerationY[i] = forceFieldY[i] / particleMass[i];
+            particleAccelerationZ[i] = forceFieldZ[i] / particleMass[i];
+        }
+    }
+    
+    void integrateMotion() {
+        for(int i = 0; i < PARTICLE_COUNT; i++) {
+            // 速度更新
+            particleVelocityX[i] += particleAccelerationX[i] * timeStep;
+            particleVelocityY[i] += particleAccelerationY[i] * timeStep;
+            particleVelocityZ[i] += particleAccelerationZ[i] * timeStep;
+            
+            // 位置更新
+            particlePositionX[i] += particleVelocityX[i] * timeStep;
+            particlePositionY[i] += particleVelocityY[i] * timeStep;
+            particlePositionZ[i] += particleVelocityZ[i] * timeStep;
+        }
+    }
+    
+    void handleCollisions() {
+        for(int i = 0; i < PARTICLE_COUNT; i++) {
+            // 边界碰撞处理
+            if(particlePositionX[i] < boundaryMinX) {
+                particlePositionX[i] = boundaryMinX;
+                particleVelocityX[i] = -restitutionCoefficient * particleVelocityX[i];
+            }
+            if(particlePositionX[i] > boundaryMaxX) {
+                particlePositionX[i] = boundaryMaxX;
+                particleVelocityX[i] = -restitutionCoefficient * particleVelocityX[i];
+            }
+            // 类似处理Y和Z方向
+        }
+    }
+    
+    void calculateEnergyAndMomentum(int step) {
+        kineticEnergy[step] = 0.0f;
+        potentialEnergy[step] = 0.0f;
+        momentumX[step] = 0.0f;
+        momentumY[step] = 0.0f;
+        momentumZ[step] = 0.0f;
+        
+        for(int i = 0; i < PARTICLE_COUNT; i++) {
+            float speedSq = particleVelocityX[i]*particleVelocityX[i] + 
+                           particleVelocityY[i]*particleVelocityY[i] + 
+                           particleVelocityZ[i]*particleVelocityZ[i];
+            kineticEnergy[step] += 0.5f * particleMass[i] * speedSq;
+            
+            momentumX[step] += particleMass[i] * particleVelocityX[i];
+            momentumY[step] += particleMass[i] * particleVelocityY[i];
+            momentumZ[step] += particleMass[i] * particleVelocityZ[i];
+        }
+        
+        totalEnergy[step] = kineticEnergy[step] + potentialEnergy[step];
+    }
+    
+    void displayResults() {
+        std::cout << "=== 物理粒子系统仿真结果 ===" << std::endl;
+        std::cout << "粒子数量: " << PARTICLE_COUNT << std::endl;
+        std::cout << "仿真步数: " << SIMULATION_STEPS << std::endl;
+        std::cout << "总仿真时间: " << simulationTime << " 秒" << std::endl;
+        std::cout << "最终动能: " << std::setprecision(8) << kineticEnergy[SIMULATION_STEPS-1] << " J" << std::endl;
+        std::cout << "最终动量X: " << std::setprecision(8) << momentumX[SIMULATION_STEPS-1] << " kg·m/s" << std::endl;
+        std::cout << "浮点变量总数: 100+" << std::endl;
+        std::cout << "==========================" << std::endl;
+    }
+};
+
+int main() {
+    ParticlePhysicsSimulation simulation;
+    simulation.runSimulation();
+    return 0;
+}
+```
+
+## 9. 有限元结构分析系统
+
+```c
+#include <iostream>
+#include <cmath>
+#include <iomanip>
+
+#define NODES_COUNT 64
+#define ELEMENTS_COUNT 50
+#define DOF 3  // 每个节点的自由度
+
+class FiniteElementAnalysis {
+private:
+    // 节点数据
+    float nodeCoordinates[NODES_COUNT][3];
+    float nodeDisplacements[NODES_COUNT][DOF];
+    float nodeForces[NODES_COUNT][DOF];
+    float nodeVelocities[NODES_COUNT][DOF];
+    float nodeAccelerations[NODES_COUNT][DOF];
+    float nodeMasses[NODES_COUNT];
+    
+    // 单元数据
+    int elementConnectivity[ELEMENTS_COUNT][8]; // 8节点六面体单元
+    float elementStiffness[ELEMENTS_COUNT][24][24]; // 每个单元的刚度矩阵
+    float elementStresses[ELEMENTS_COUNT][6]; // 6个应力分量
+    float elementStrains[ELEMENTS_COUNT][6]; // 6个应变分量
+    float elementForces[ELEMENTS_COUNT][24];
+    
+    // 材料属性
+    float youngsModulus[ELEMENTS_COUNT];
+    float poissonsRatio[ELEMENTS_COUNT];
+    float density[ELEMENTS_COUNT];
+    float yieldStrength[ELEMENTS_COUNT];
+    float plasticStrain[ELEMENTS_COUNT];
+    
+    // 全局矩阵
+    float globalStiffnessMatrix[NODES_COUNT*DOF][NODES_COUNT*DOF];
+    float globalMassMatrix[NODES_COUNT*DOF][NODES_COUNT*DOF];
+    float globalDampingMatrix[NODES_COUNT*DOF][NODES_COUNT*DOF];
+    float globalForceVector[NODES_COUNT*DOF];
+    float globalDisplacementVector[NODES_COUNT*DOF];
+    
+    // 分析参数
+    float timeStep = 0.001f;
+    float totalTime = 1.0f;
+    float currentTime = 0.0f;
+    float gravity[3] = {0.0f, -9.81f, 0.0f};
+    float dampingCoefficient = 0.05f;
+    
+    // 结果存储
+    float displacementHistory[1000][NODES_COUNT][DOF];
+    float stressHistory[1000][ELEMENTS_COUNT][6];
+    float strainHistory[1000][ELEMENTS_COUNT][6];
+    float energyHistory[1000][5]; // 应变能、动能、总能量等
+    
+    // 数值积分参数
+    float gaussPoints[8][3];
+    float gaussWeights[8];
+    
+    // 收敛控制
+    float tolerance = 1.0e-6f;
+    float residualNorm[1000];
+    float errorEstimate[1000];
+    int iterationCount[1000];
+    
+    // 物理常数
+    float pi = 3.14159265358979323846f;
+    float speedOfSound = 343.0f;
+    float thermalConductivity = 50.0f;
+    float specificHeatCapacity = 500.0f;
+    float thermalExpansionCoefficient = 1.2e-5f;
+    
+    // 温度场
+    float nodeTemperatures[NODES_COUNT];
+    float elementTemperatures[ELEMENTS_COUNT];
+    float thermalForces[NODES_COUNT][DOF];
+    float heatFlux[ELEMENTS_COUNT][3];
+    
+    // 动力分析参数
+    float naturalFrequencies[50];
+    float modeShapes[50][NODES_COUNT*DOF];
+    float modalMass[50];
+    float modalStiffness[50];
+    float modalDamping[50];
+    
+    // 接触分析
+    float contactForces[NODES_COUNT][3];
+    float frictionCoefficient = 0.3f;
+    float contactStiffness = 1.0e6f;
+    float penetrationDepth[NODES_COUNT];
+    
+    // 优化参数
+    float designVariables[ELEMENTS_COUNT];
+    float objectiveFunction;
+    float constraintValues[20];
+    float sensitivityMatrix[ELEMENTS_COUNT][20];
+    
+    // 边界条件
+    float prescribedDisplacements[NODES_COUNT][DOF];
+    float prescribedForces[NODES_COUNT][DOF];
+    int constrainedDOFs[NODES_COUNT*DOF];
+    
+    int analysisType; // 0:静态, 1:动态, 2:模态, 3:热力耦合
+    int currentStep;
+    int maxIterations = 100;
+    int numberOfModes = 10;
+
+public:
+    FiniteElementAnalysis() {
+        initializeSystem();
+    }
+    
+    void initializeSystem() {
+        // 初始化节点坐标（简单立方体网格）
+        int nodesPerSide = 4;
+        int nodeIndex = 0;
+        for(int i = 0; i < nodesPerSide; i++) {
+            for(int j = 0; j < nodesPerSide; j++) {
+                for(int k = 0; k < nodesPerSide; k++) {
+                    if(nodeIndex < NODES_COUNT) {
+                        nodeCoordinates[nodeIndex][0] = static_cast<float>(i);
+                        nodeCoordinates[nodeIndex][1] = static_cast<float>(j);
+                        nodeCoordinates[nodeIndex][2] = static_cast<float>(k);
+                        nodeIndex++;
+                    }
+                }
+            }
+        }
+        
+        // 初始化单元连接
+        initializeElementConnectivity();
+        
+        // 初始化材料属性
+        for(int i = 0; i < ELEMENTS_COUNT; i++) {
+            youngsModulus[i] = 2.0e11f; // 钢
+            poissonsRatio[i] = 0.3f;
+            density[i] = 7800.0f;
+            yieldStrength[i] = 2.5e8f;
+        }
+        
+        // 初始化高斯积分点
+        initializeGaussPoints();
+        
+        currentStep = 0;
+    }
+    
+    void initializeElementConnectivity() {
+        // 简化的单元连接初始化
+        int elementsPerSide = 3;
+        int elementIndex = 0;
+        
+        for(int i = 0; i < elementsPerSide && elementIndex < ELEMENTS_COUNT; i++) {
+            for(int j = 0; j < elementsPerSide && elementIndex < ELEMENTS_COUNT; j++) {
+                for(int k = 0; k < elementsPerSide && elementIndex < ELEMENTS_COUNT; k++) {
+                    int baseNode = i * 16 + j * 4 + k;
+                    elementConnectivity[elementIndex][0] = baseNode;
+                    elementConnectivity[elementIndex][1] = baseNode + 1;
+                    elementConnectivity[elementIndex][2] = baseNode + 5;
+                    elementConnectivity[elementIndex][3] = baseNode + 4;
+                    elementConnectivity[elementIndex][4] = baseNode + 16;
+                    elementConnectivity[elementIndex][5] = baseNode + 17;
+                    elementConnectivity[elementIndex][6] = baseNode + 21;
+                    elementConnectivity[elementIndex][7] = baseNode + 20;
+                    elementIndex++;
+                }
+            }
+        }
+    }
+    
+    void initializeGaussPoints() {
+        // 2x2x2高斯积分点
+        float a = 1.0f / sqrtf(3.0f);
+        float points[8][3] = {
+            {-a, -a, -a}, {a, -a, -a}, {a, a, -a}, {-a, a, -a},
+            {-a, -a, a}, {a, -a, a}, {a, a, a}, {-a, a, a}
+        };
+        float weight = 1.0f;
+        
+        for(int i = 0; i < 8; i++) {
+            gaussPoints[i][0] = points[i][0];
+            gaussPoints[i][1] = points[i][1];
+            gaussPoints[i][2] = points[i][2];
+            gaussWeights[i] = weight;
+        }
+    }
+    
+    void runAnalysis() {
+        std::cout << "=== 开始有限元分析 ===" << std::endl;
+        std::cout << "节点数: " << NODES_COUNT << std::endl;
+        std::cout << "单元数: " << ELEMENTS_COUNT << std::endl;
+        std::cout << "总自由度: " << NODES_COUNT * DOF << std::endl;
+        
+        assembleGlobalMatrices();
+        applyBoundaryConditions();
+        solveSystem();
+        calculateStresses();
+        outputResults();
+    }
+    
+private:
+    void assembleGlobalMatrices() {
+        // 清零全局矩阵
+        for(int i = 0; i < NODES_COUNT*DOF; i++) {
+            for(int j = 0; j < NODES_COUNT*DOF; j++) {
+                globalStiffnessMatrix[i][j] = 0.0f;
+                globalMassMatrix[i][j] = 0.0f;
+            }
+            globalForceVector[i] = 0.0f;
+        }
+        
+        // 组装每个单元的贡献
+        for(int elem = 0; elem < ELEMENTS_COUNT; elem++) {
+            calculateElementStiffness(elem);
+            calculateElementMass(elem);
+            
+            // 将单元矩阵组装到全局矩阵
+            for(int i = 0; i < 8; i++) {
+                int nodeI = elementConnectivity[elem][i];
+                for(int j = 0; j < 8; j++) {
+                    int nodeJ = elementConnectivity[elem][j];
+                    
+                    for(int dofI = 0; dofI < DOF; dofI++) {
+                        for(int dofJ = 0; dofJ < DOF; dofJ++) {
+                            int globalRow = nodeI * DOF + dofI;
+                            int globalCol = nodeJ * DOF + dofJ;
+                            int localRow = i * DOF + dofI;
+                            int localCol = j * DOF + dofJ;
+                            
+                            globalStiffnessMatrix[globalRow][globalCol] += 
+                                elementStiffness[elem][localRow][localCol];
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    void calculateElementStiffness(int elem) {
+        float E = youngsModulus[elem];
+        float nu = poissonsRatio[elem];
+        
+        // 计算弹性矩阵D
+        float D[6][6] = {0};
+        float factor = E / ((1 + nu) * (1 - 2 * nu));
+        D[0][0] = D[1][1] = D[2][2] = factor * (1 - nu);
+        D[0][1] = D[0][2] = D[1][0] = D[1][2] = D[2][0] = D[2][1] = factor * nu;
+        D[3][3] = D[4][4] = D[5][5] = factor * (1 - 2 * nu) / 2;
+        
+        // 简化的刚度矩阵计算（实际应用需要完整的形函数和数值积分）
+        float k = E / 2.0f; // 简化值
+        for(int i = 0; i < 24; i++) {
+            for(int j = 0; j < 24; j++) {
+                elementStiffness[elem][i][j] = k * (i == j ? 1.0f : 0.1f);
+            }
+        }
+    }
+    
+    void calculateElementMass(int elem) {
+        // 简化的一致质量矩阵
+        float mass = density[elem] / 8.0f;
+        for(int i = 0; i < 24; i++) {
+            for(int j = 0; j < 24; j++) {
+                elementStiffness[elem][i][j] = mass * (i == j ? 1.0f : 0.0f);
+            }
+        }
+    }
+    
+    void applyBoundaryConditions() {
+        // 固定底部节点
+        for(int i = 0; i < 16; i++) {
+            constrainedDOFs[i*DOF + 1] = 1; // 约束Y方向
+            prescribedDisplacements[i][1] = 0.0f;
+        }
+        
+        // 施加荷载
+        for(int i = NODES_COUNT-16; i < NODES_COUNT; i++) {
+            prescribedForces[i][1] = -1000.0f; // 向下荷载
+        }
+    }
+    
+    void solveSystem() {
+        // 简化的线性系统求解（实际应用需要更复杂的求解器）
+        int systemSize = NODES_COUNT * DOF;
+        
+        // 高斯消元法求解
+        for(int i = 0; i < systemSize; i++) {
+            if(constrainedDOFs[i]) {
+                // 处理约束自由度
+                for(int j = 0; j < systemSize; j++) {
+                    globalStiffnessMatrix[i][j] = (i == j) ? 1.0f : 0.0f;
+                }
+                globalForceVector[i] = prescribedDisplacements[i/DOF][i%DOF];
+            }
+        }
+        
+        // 前向消元
+        for(int i = 0; i < systemSize; i++) {
+            float pivot = globalStiffnessMatrix[i][i];
+            if(fabs(pivot) < 1e-12f) continue;
+            
+            for(int j = i+1; j < systemSize; j++) {
+                float factor = globalStiffnessMatrix[j][i] / pivot;
+                for(int k = i; k < systemSize; k++) {
+                    globalStiffnessMatrix[j][k] -= factor * globalStiffnessMatrix[i][k];
+                }
+                globalForceVector[j] -= factor * globalForceVector[i];
+            }
+        }
+        
+        // 回代
+        for(int i = systemSize-1; i >= 0; i--) {
+            globalDisplacementVector[i] = globalForceVector[i];
+            for(int j = i+1; j < systemSize; j++) {
+                globalDisplacementVector[i] -= globalStiffnessMatrix[i][j] * globalDisplacementVector[j];
+            }
+            globalDisplacementVector[i] /= globalStiffnessMatrix[i][i];
+        }
+        
+        // 存储节点位移
+        for(int i = 0; i < NODES_COUNT; i++) {
+            for(int j = 0; j < DOF; j++) {
+                nodeDisplacements[i][j] = globalDisplacementVector[i*DOF + j];
+            }
+        }
+    }
+    
+    void calculateStresses() {
+        // 计算单元应力
+        for(int elem = 0; elem < ELEMENTS_COUNT; elem++) {
+            // 简化的应力计算
+            for(int i = 0; i < 6; i++) {
+                elementStresses[elem][i] = 0.0f;
+                for(int j = 0; j < 8; j++) {
+                    int node = elementConnectivity[elem][j];
+                    elementStresses[elem][i] += youngsModulus[elem] * 
+                                              nodeDisplacements[node][i % 3] * 0.1f;
+                }
+            }
+        }
+    }
+    
+    void outputResults() {
+        std::cout << "=== 有限元分析结果 ===" << std::endl;
+        
+        // 输出最大位移
+        float maxDisplacement = 0.0f;
+        int maxNode = 0;
+        for(int i = 0; i < NODES_COUNT; i++) {
+            float disp = sqrtf(nodeDisplacements[i][0]*nodeDisplacements[i][0] +
+                            nodeDisplacements[i][1]*nodeDisplacements[i][1] +
+                            nodeDisplacements[i][2]*nodeDisplacements[i][2]);
+            if(disp > maxDisplacement) {
+                maxDisplacement = disp;
+                maxNode = i;
+            }
+        }
+        
+        std::cout << "最大位移: " << maxDisplacement << " m (节点 " << maxNode << ")" << std::endl;
+        std::cout << "位移分量: X=" << nodeDisplacements[maxNode][0] 
+                  << ", Y=" << nodeDisplacements[maxNode][1] 
+                  << ", Z=" << nodeDisplacements[maxNode][2] << std::endl;
+        
+        // 输出最大应力
+        float maxStress = 0.0f;
+        int maxElem = 0;
+        for(int i = 0; i < ELEMENTS_COUNT; i++) {
+            float vmStress = calculateVonMisesStress(i);
+            if(vmStress > maxStress) {
+                maxStress = vmStress;
+                maxElem = i;
+            }
+        }
+        
+        std::cout << "最大等效应力: " << maxStress << " Pa (单元 " << maxElem << ")" << std::endl;
+        std::cout << "许用应力: " << yieldStrength[maxElem] << " Pa" << std::endl;
+        std::cout << "安全系数: " << yieldStrength[maxElem] / maxStress << std::endl;
+        std::cout << "浮点变量总数: 100+" << std::endl;
+        std::cout << "==========================" << std::endl;
+    }
+    
+    float calculateVonMisesStress(int elem) {
+        float sxx = elementStresses[elem][0];
+        float syy = elementStresses[elem][1];
+        float szz = elementStresses[elem][2];
+        float sxy = elementStresses[elem][3];
+        float syz = elementStresses[elem][4];
+        float szx = elementStresses[elem][5];
+        
+        return sqrtf(0.5f * ((sxx-syy)*(sxx-syy) + (syy-szz)*(syy-szz) + (szz-sxx)*(szz-sxx) +
+                            6.0f * (sxy*sxy + syz*syz + szx*szx)));
+    }
+};
+
+int main() {
+    FiniteElementAnalysis analysis;
+    analysis.runAnalysis();
+    return 0;
+}
+```
+
+## 10. 计算流体动力学模拟
+
+```c
+#include <iostream>
+#include <cmath>
+#include <iomanip>
+
+#define GRID_SIZE_X 32
+#define GRID_SIZE_Y 32
+#define GRID_SIZE_Z 16
+
+class FluidDynamicsSolver {
+private:
+    // 流场变量
+    float velocityX[GRID_SIZE_X][GRID_SIZE_Y][GRID_SIZE_Z];
+    float velocityY[GRID_SIZE_X][GRID_SIZE_Y][GRID_SIZE_Z];
+    float velocityZ[GRID_SIZE_X][GRID_SIZE_Y][GRID_SIZE_Z];
+    float pressure[GRID_SIZE_X][GRID_SIZE_Y][GRID_SIZE_Z];
+    float temperature[GRID_SIZE_X][GRID_SIZE_Y][GRID_SIZE_Z];
+    float density[GRID_SIZE_X][GRID_SIZE_Y][GRID_SIZE_Z];
+    float viscosity[GRID_SIZE_X][GRID_SIZE_Y][GRID_SIZE_Z];
+    
+    // 临时变量
+    float velocityX_temp[GRID_SIZE_X][GRID_SIZE_Y][GRID_SIZE_Z];
+    float velocityY_temp[GRID_SIZE_X][GRID_SIZE_Y][GRID_SIZE_Z];
+    float velocityZ_temp[GRID_SIZE_X][GRID_SIZE_Y][GRID_SIZE_Z];
+    float pressure_temp[GRID_SIZE_X][GRID_SIZE_Y][GRID_SIZE_Z];
+    
+    // 通量变量
+    float massFluxX[GRID_SIZE_X][GRID_SIZE_Y][GRID_SIZE_Z];
+    float massFluxY[GRID_SIZE_X][GRID_SIZE_Y][GRID_SIZE_Z];
+    float massFluxZ[GRID_SIZE_X][GRID_SIZE_Y][GRID_SIZE_Z];
+    float energyFlux[GRID_SIZE_X][GRID_SIZE_Y][GRID_SIZE_Z];
+    
+    // 湍流模型变量
+    float turbulentKineticEnergy[GRID_SIZE_X][GRID_SIZE_Y][GRID_SIZE_Z];
+    float turbulentDissipation[GRID_SIZE_X][GRID_SIZE_Y][GRID_SIZE_Z];
+    float eddyViscosity[GRID_SIZE_X][GRID_SIZE_Y][GRID_SIZE_Z];
+    
+    // 边界条件
+    float inletVelocity[GRID_SIZE_Y][GRID_SIZE_Z];
+    float outletPressure[GRID_SIZE_Y][GRID_SIZE_Z];
+    float wallTemperature[GRID_SIZE_X][GRID_SIZE_Y];
+    
+    // 物理参数
+    float reynoldsNumber = 1000.0f;
+    float machNumber = 0.1f;
+    float prandtlNumber = 0.71f;
+    float specificHeatRatio = 1.4f;
+    float gasConstant = 287.0f;
+    
+    // 数值参数
+    float timeStep = 0.001f;
+    float gridSpacingX = 0.1f;
+    float gridSpacingY = 0.1f;
+    float gridSpacingZ = 0.1f;
+    float courantNumber = 0.5f;
+    
+    // 收敛监测
+    float residualVelocity[1000];
+    float residualPressure[1000];
+    float residualContinuity[1000];
+    float massFlowRate[1000];
+    float dragCoefficient[1000];
+    float liftCoefficient[1000];
+    
+    // 结果存储
+    float velocityProfile[GRID_SIZE_X][100];
+    float pressureDistribution[GRID_SIZE_X][100];
+    float vorticityField[GRID_SIZE_X][GRID_SIZE_Y][GRID_SIZE_Z];
+    float streamFunction[GRID_SIZE_X][GRID_SIZE_Y];
+    float qCriterion[GRID_SIZE_X][GRID_SIZE_Y][GRID_SIZE_Z];
+    
+    int currentIteration;
+    int maxIterations = 1000;
+    int outputFrequency = 100;
+
+public:
+    FluidDynamicsSolver() {
+        initializeFlowField();
+    }
+    
+    void initializeFlowField() {
+        // 初始化均匀流场
+        float u0 = 1.0f; // 参考速度
+        float p0 = 101325.0f; // 参考压力
+        float rho0 = 1.225f; // 空气密度
+        float T0 = 300.0f; // 参考温度
+        
+        for(int i = 0; i < GRID_SIZE_X; i++) {
+            for(int j = 0; j < GRID_SIZE_Y; j++) {
+                for(int k = 0; k < GRID_SIZE_Z; k++) {
+                    velocityX[i][j][k] = u0;
+                    velocityY[i][j][k] = 0.0f;
+                    velocityZ[i][j][k] = 0.0f;
+                    pressure[i][j][k] = p0;
+                    density[i][j][k] = rho0;
+                    temperature[i][j][k] = T0;
+                    viscosity[i][j][k] = 1.8e-5f;
+                }
+            }
+        }
+        
+        currentIteration = 0;
+    }
+    
+    void solveNavierStokes() {
+        std::cout << "=== 开始CFD计算 ===" << std::endl;
+        std::cout << "网格尺寸: " << GRID_SIZE_X << " x " << GRID_SIZE_Y << " x " << GRID_SIZE_Z << std::endl;
+        std::cout << "雷诺数: " << reynoldsNumber << std::endl;
+        
+        while(currentIteration < maxIterations) {
+            applyBoundaryConditions();
+            calculateFluxes();
+            solveMomentumEquations();
+            solvePressureCorrection();
+            correctVelocityField();
+            solveEnergyEquation();
+            updateTurbulenceModel();
+            
+            if(currentIteration % outputFrequency == 0) {
+                calculateResiduals();
+                outputProgress();
+            }
+            
+            currentIteration++;
+        }
+        
+        outputResults();
+    }
+    
+private:
+    void applyBoundaryConditions() {
+        // 入口边界条件
+        for(int j = 0; j < GRID_SIZE_Y; j++) {
+            for(int k = 0; k < GRID_SIZE_Z; k++) {
+                velocityX[0][j][k] = 1.0f; // 均匀入口速度
+                velocityY[0][j][k] = 0.0f;
+                velocityZ[0][j][k] = 0.0f;
+                pressure[0][j][k] = 101325.0f;
+            }
+        }
+        
+        // 出口边界条件
+        for(int j = 0; j < GRID_SIZE_Y; j++) {
+            for(int k = 0; k < GRID_SIZE_Z; k++) {
+                pressure[GRID_SIZE_X-1][j][k] = 101325.0f;
+            }
+        }
+        
+        // 壁面边界条件（无滑移）
+        for(int i = 0; i < GRID_SIZE_X; i++) {
+            for(int k = 0; k < GRID_SIZE_Z; k++) {
+                velocityX[i][0][k] = 0.0f;
+                velocityY[i][0][k] = 0.0f;
+                velocityZ[i][0][k] = 0.0f;
+                velocityX[i][GRID_SIZE_Y-1][k] = 0.0f;
+                velocityY[i][GRID_SIZE_Y-1][k] = 0.0f;
+                velocityZ[i][GRID_SIZE_Y-1][k] = 0.0f;
+            }
+        }
+    }
+    
+    void calculateFluxes() {
+        // 计算对流和扩散通量
+        for(int i = 1; i < GRID_SIZE_X-1; i++) {
+            for(int j = 1; j < GRID_SIZE_Y-1; j++) {
+                for(int k = 1; k < GRID_SIZE_Z-1; k++) {
+                    // 质量通量
+                    massFluxX[i][j][k] = density[i][j][k] * velocityX[i][j][k];
+                    massFluxY[i][j][k] = density[i][j][k] * velocityY[i][j][k];
+                    massFluxZ[i][j][k] = density[i][j][k] * velocityZ[i][j][k];
+                    
+                    // 对流项
+                    float convX = calculateConvectionX(i, j, k);
+                    float convY = calculateConvectionY(i, j, k);
+                    float convZ = calculateConvectionZ(i, j, k);
+                    
+                    // 扩散项
+                    float diffX = calculateDiffusionX(i, j, k);
+                    float diffY = calculateDiffusionY(i, j, k);
+                    float diffZ = calculateDiffusionZ(i, j, k);
+                    
+                    // 临时速度（忽略压力梯度）
+                    velocityX_temp[i][j][k] = velocityX[i][j][k] + 
+                                            timeStep * (diffX - convX);
+                    velocityY_temp[i][j][k] = velocityY[i][j][k] + 
+                                            timeStep * (diffY - convY);
+                    velocityZ_temp[i][j][k] = velocityZ[i][j][k] + 
+                                            timeStep * (diffZ - convZ);
+                }
+            }
+        }
+    }
+    
+    float calculateConvectionX(int i, int j, int k) {
+        // 简化的对流项计算
+        float u = velocityX[i][j][k];
+        float v = velocityY[i][j][k];
+        float w = velocityZ[i][j][k];
+        
+        float dudx = (velocityX[i+1][j][k] - velocityX[i-1][j][k]) / (2.0f * gridSpacingX);
+        float dudy = (velocityX[i][j+1][k] - velocityX[i][j-1][k]) / (2.0f * gridSpacingY);
+        float dudz = (velocityX[i][j][k+1] - velocityX[i][j][k-1]) / (2.0f * gridSpacingZ);
+        
+        return u * dudx + v * dudy + w * dudz;
+    }
+    
+    float calculateDiffusionX(int i, int j, int k) {
+        // 简化的扩散项计算
+        float nu = viscosity[i][j][k] / density[i][j][k];
+        
+        float d2udx2 = (velocityX[i+1][j][k] - 2*velocityX[i][j][k] + velocityX[i-1][j][k]) / 
+                      (gridSpacingX * gridSpacingX);
+        float d2udy2 = (velocityX[i][j+1][k] - 2*velocityX[i][j][k] + velocityX[i][j-1][k]) / 
+                      (gridSpacingY * gridSpacingY);
+        float d2udz2 = (velocityX[i][j][k+1] - 2*velocityX[i][j][k] + velocityX[i][j][k-1]) / 
+                      (gridSpacingZ * gridSpacingZ);
+        
+        return nu * (d2udx2 + d2udy2 + d2udz2);
+    }
+    
+    // 类似实现Y和Z方向的对流扩散项计算
+    float calculateConvectionY(int i, int j, int k) { return 0.0f; }
+    float calculateConvectionZ(int i, int j, int k) { return 0.0f; }
+    float calculateDiffusionY(int i, int j, int k) { return 0.0f; }
+    float calculateDiffusionZ(int i, int j, int k) { return 0.0f; }
+    
+    void solveMomentumEquations() {
+        // 求解动量方程（简化实现）
+        for(int i = 1; i < GRID_SIZE_X-1; i++) {
+            for(int j = 1; j < GRID_SIZE_Y-1; j++) {
+                for(int k = 1; k < GRID_SIZE_Z-1; k++) {
+                    // 压力梯度项
+                    float dpdx = (pressure[i+1][j][k] - pressure[i-1][j][k]) / (2.0f * gridSpacingX);
+                    
+                    // 更新速度
+                    velocityX_temp[i][j][k] -= timeStep * dpdx / density[i][j][k];
+                }
+            }
+        }
+    }
+    
+    void solvePressureCorrection() {
+        // 压力修正方程（简化Poisson方程求解）
+        float maxResidual = 1.0f;
+        int pressureIterations = 0;
+        
+        while(maxResidual > 1e-6f && pressureIterations < 100) {
+            maxResidual = 0.0f;
+            
+            for(int i = 1; i < GRID_SIZE_X-1; i++) {
+                for(int j = 1; j < GRID_SIZE_Y-1; j++) {
+                    for(int k = 1; k < GRID_SIZE_Z-1; k++) {
+                        // 连续性方程残差
+                        float divU = (velocityX_temp[i+1][j][k] - velocityX_temp[i-1][j][k]) / (2.0f * gridSpacingX) +
+                                   (velocityY_temp[i][j+1][k] - velocityY_temp[i][j-1][k]) / (2.0f * gridSpacingY) +
+                                   (velocityZ_temp[i][j][k+1] - velocityZ_temp[i][j][k-1]) / (2.0f * gridSpacingZ);
+                        
+                        // 压力修正
+                        float pressureCorrection = -divU * density[i][j][k] * gridSpacingX * gridSpacingY / timeStep;
+                        pressure_temp[i][j][k] = pressure[i][j][k] + 0.1f * pressureCorrection;
+                        
+                        maxResidual = fmax(maxResidual, fabs(divU));
+                    }
+                }
+            }
+            
+            pressureIterations++;
+        }
+    }
+    
+    void correctVelocityField() {
+        // 速度修正
+        for(int i = 1; i < GRID_SIZE_X-1; i++) {
+            for(int j = 1; j < GRID_SIZE_Y-1; j++) {
+                for(int k = 1; k < GRID_SIZE_Z-1; k++) {
+                    float dpdx = (pressure_temp[i+1][j][k] - pressure_temp[i-1][j][k]) / (2.0f * gridSpacingX);
+                    
+                    velocityX[i][j][k] = velocityX_temp[i][j][k] - 
+                                       timeStep * dpdx / density[i][j][k];
+                    velocityY[i][j][k] = velocityY_temp[i][j][k];
+                    velocityZ[i][j][k] = velocityZ_temp[i][j][k];
+                    pressure[i][j][k] = pressure_temp[i][j][k];
+                }
+            }
+        }
+    }
+    
+    void solveEnergyEquation() {
+        // 求解能量方程（简化实现）
+        for(int i = 1; i < GRID_SIZE_X-1; i++) {
+            for(int j = 1; j < GRID_SIZE_Y-1; j++) {
+                for(int k = 1; k < GRID_SIZE_Z-1; k++) {
+                    // 简化的温度更新
+                    float dTdx = (temperature[i+1][j][k] - temperature[i-1][j][k]) / (2.0f * gridSpacingX);
+                    temperature[i][j][k] -= timeStep * velocityX[i][j][k] * dTdx;
+                }
+            }
+        }
+    }
+    
+    void updateTurbulenceModel() {
+        // 更新湍流模型变量（简化实现）
+        for(int i = 1; i < GRID_SIZE_X-1; i++) {
+            for(int j = 1; j < GRID_SIZE_Y-1; j++) {
+                for(int k = 1; k < GRID_SIZE_Z-1; k++) {
+                    // 简化的湍流动能更新
+                    float s11 = (velocityX[i+1][j][k] - velocityX[i-1][j][k]) / (2.0f * gridSpacingX);
+                    turbulentKineticEnergy[i][j][k] = 0.1f * s11 * s11;
+                }
+            }
+        }
+    }
+    
+    void calculateResiduals() {
+        // 计算连续性方程残差
+        float maxContinuityResidual = 0.0f;
+        for(int i = 1; i < GRID_SIZE_X-1; i++) {
+            for(int j = 1; j < GRID_SIZE_Y-1; j++) {
+                for(int k = 1; k < GRID_SIZE_Z-1; k++) {
+                    float divU = (velocityX[i+1][j][k] - velocityX[i-1][j][k]) / (2.0f * gridSpacingX) +
+                               (velocityY[i][j+1][k] - velocityY[i][j-1][k]) / (2.0f * gridSpacingY) +
+                               (velocityZ[i][j][k+1] - velocityZ[i][j][k-1]) / (2.0f * gridSpacingZ);
+                    maxContinuityResidual = fmax(maxContinuityResidual, fabs(divU));
+                }
+            }
+        }
+        
+        residualContinuity[currentIteration/outputFrequency] = maxContinuityResidual;
+    }
+    
+    void outputProgress() {
+        std::cout << "迭代步: " << currentIteration 
+                  << ", 连续性残差: " << std::scientific << residualContinuity[currentIteration/outputFrequency] 
+                  << std::fixed << std::endl;
+    }
+    
+    void outputResults() {
+        std::cout << "=== CFD计算完成 ===" << std::endl;
+        
+        // 计算流量统计
+        float totalMassFlow = 0.0f;
+        float maxVelocity = 0.0f;
+        
+        for(int i = 0; i < GRID_SIZE_X; i++) {
+            for(int j = 0; j < GRID_SIZE_Y; j++) {
+                for(int k = 0; k < GRID_SIZE_Z; k++) {
+                    float vel = sqrtf(velocityX[i][j][k]*velocityX[i][j][k] +
+                                    velocityY[i][j][k]*velocityY[i][j][k] +
+                                    velocityZ[i][j][k]*velocityZ[i][j][k]);
+                    maxVelocity = fmax(maxVelocity, vel);
+                    
+                    if(i == GRID_SIZE_X/2) {
+                        totalMassFlow += density[i][j][k] * velocityX[i][j][k] * 
+                                       gridSpacingY * gridSpacingZ;
+                    }
+                }
+            }
+        }
+        
+        std::cout << "最大速度: " << maxVelocity << " m/s" << std::endl;
+        std::cout << "总质量流量: " << totalMassFlow << " kg/s" << std::endl;
+        std::cout << "浮点变量总数: 100+" << std::endl;
+        std::cout << "==========================" << std::endl;
+    }
+};
+
+int main() {
+    FluidDynamicsSolver cfd;
+    cfd.solveNavierStokes();
+    return 0;
+}
+```
+
+## 11. 分子动力学模拟程序
+
+```c
+#include <iostream>
+#include <cmath>
+#include <vector>
+#include <iomanip>
+#include <fstream>
+
+#define ATOMS_COUNT 256
+#define SIMULATION_STEPS 5000
+#define GRID_POINTS 50
+
+class MolecularDynamicsSimulation {
+private:
+    // 原子数据
+    float atomPositionsX[ATOMS_COUNT];
+    float atomPositionsY[ATOMS_COUNT];
+    float atomPositionsZ[ATOMS_COUNT];
+    float atomVelocitiesX[ATOMS_COUNT];
+    float atomVelocitiesY[ATOMS_COUNT];
+    float atomVelocitiesZ[ATOMS_COUNT];
+    float atomForcesX[ATOMS_COUNT];
+    float atomForcesY[ATOMS_COUNT];
+    float atomForcesZ[ATOMS_COUNT];
+    float atomMasses[ATOMS_COUNT];
+    float atomCharges[ATOMS_COUNT];
+    float atomEnergies[ATOMS_COUNT];
+    float atomStresses[ATOMS_COUNT][6];  // 应力张量
+    
+    // 势能参数
+    float lennardJonesSigma = 3.4e-10f;    // 米
+    float lennardJonesEpsilon = 1.65e-21f; // 焦耳
+    float coulombConstant = 8.99e9f;        // N·m²/C²
+    float morseDe[ATOMS_COUNT];             // 势阱深度
+    float morseAlpha[ATOMS_COUNT];          // 势阱宽度
+    float morseR0[ATOMS_COUNT];             // 平衡距离
+    
+    // 模拟参数
+    float timeStep = 1.0e-15f;              // 1飞秒
+    float temperature = 300.0f;            // 开尔文
+    float pressure = 101325.0f;            // 帕斯卡
+    float volume = 1.0e-27f;               // 立方米
+    float density = 1000.0f;               // kg/m³
+    
+    // 热力学量
+    float kineticEnergy[SIMULATION_STEPS];
+    float potentialEnergy[SIMULATION_STEPS];
+    float totalEnergy[SIMULATION_STEPS];
+    float temperatureHistory[SIMULATION_STEPS];
+    float pressureHistory[SIMULATION_STEPS];
+    float volumeHistory[SIMULATION_STEPS];
+    float heatCapacity[SIMULATION_STEPS];
+    
+    // 统计量
+    float radialDistribution[GRID_POINTS];
+    float meanSquaredDisplacement[SIMULATION_STEPS];
+    float velocityAutocorrelation[SIMULATION_STEPS];
+    float structureFactor[GRID_POINTS];
+    
+    // 系综控制
+    float thermostatParameter = 0.1f;      // 热浴参数
+    float barostatParameter = 0.01f;       // 压浴参数
+    float noseHooverXi = 0.0f;            // Nose-Hoover变量
+    float noseHooverQ = 100.0f;            // 热浴质量
+    
+    // 边界条件
+    float boxSizeX = 1.0e-9f;              // 1纳米盒子
+    float boxSizeY = 1.0e-9f;
+    float boxSizeZ = 1.0e-9f;
+    bool periodicBoundary = true;
+    
+    // 力场参数
+    float cutoffDistance = 1.0e-9f;       // 截断距离
+    float neighborList[ATOMS_COUNT][ATOMS_COUNT];
+    float neighborDistances[ATOMS_COUNT][ATOMS_COUNT];
+    int neighborCount[ATOMS_COUNT];
+    
+    // 约束条件
+    float constraintForces[ATOMS_COUNT][3];
+    float shakeTolerance = 1.0e-6f;
+    float rattleParameter = 0.5f;
+    
+    // 积分算法参数
+    float verletPositionX[ATOMS_COUNT];
+    float verletPositionY[ATOMS_COUNT];
+    float verletPositionZ[ATOMS_COUNT];
+    float predictorCorrectorCoeffs[5];
+    
+    // 分析变量
+    float diffusionCoefficient = 0.0f;
+    float viscosity = 0.0f;
+    float thermalConductivity = 0.0f;
+    float compressibility = 0.0f;
+    
+    // 优化参数
+    float potentialCutoff = 1.0e-9f;
+    float potentialShift = 0.0f;
+    float forceTolerance = 1.0e-12f;
+    float energyTolerance = 1.0e-15f;
+    
+    int currentStep = 0;
+    int equilibrationSteps = 1000;
+    int productionSteps = 4000;
+    int ensembleType;  // 0: NVE, 1: NVT, 2: NPT
+
+public:
+    MolecularDynamicsSimulation() {
+        initializeSystem();
+    }
+    
+    void initializeSystem() {
+        // 初始化原子位置（简单立方格子）
+        int atomsPerSide = 4;  // 4x4x4 = 64原子
+        float latticeConstant = boxSizeX / atomsPerSide;
+        int atomIndex = 0;
+        
+        for(int i = 0; i < atomsPerSide && atomIndex < ATOMS_COUNT; i++) {
+            for(int j = 0; j < atomsPerSide && atomIndex < ATOMS_COUNT; j++) {
+                for(int k = 0; k < atomsPerSide && atomIndex < ATOMS_COUNT; k++) {
+                    atomPositionsX[atomIndex] = (i + 0.5f) * latticeConstant;
+                    atomPositionsY[atomIndex] = (j + 0.5f) * latticeConstant;
+                    atomPositionsZ[atomIndex] = (k + 0.5f) * latticeConstant;
+                    
+                    // 随机初始速度（符合麦克斯韦-玻尔兹曼分布）
+                    float kbT = 1.38e-23f * temperature;
+                    float sigma = sqrtf(kbT / (1.67e-27f));  // 假设氢原子质量
+                    
+                    atomVelocitiesX[atomIndex] = sigma * gaussianRandom();
+                    atomVelocitiesY[atomIndex] = sigma * gaussianRandom();
+                    atomVelocitiesZ[atomIndex] = sigma * gaussianRandom();
+                    
+                    atomMasses[atomIndex] = 1.67e-27f;  // 氢原子质量
+                    atomCharges[atomIndex] = 1.6e-19f;  // 基本电荷
+                    
+                    // Morse势参数
+                    morseDe[atomIndex] = 1.65e-21f;
+                    morseAlpha[atomIndex] = 1.0e10f;
+                    morseR0[atomIndex] = 1.0e-10f;
+                    
+                    atomIndex++;
+                }
+            }
+        }
+        
+        // 初始化Verlet列表
+        updateNeighborList();
+        
+        currentStep = 0;
+        ensembleType = 1;  // NVT系综
+    }
+    
+    void runSimulation() {
+        std::cout << "=== 开始分子动力学模拟 ===" << std::endl;
+        std::cout << "原子数量: " << ATOMS_COUNT << std::endl;
+        std::cout << "温度: " << temperature << " K" << std::endl;
+        std::cout << "压力: " << pressure << " Pa" << std::endl;
+        std::cout << "时间步长: " << std::scientific << timeStep << " s" << std::endl;
+        std::cout << "总步数: " << SIMULATION_STEPS << std::endl;
+        
+        // 平衡阶段
+        for(; currentStep < equilibrationSteps; currentStep++) {
+            integrateMotion();
+            applyThermostat();
+            calculateProperties();
+            
+            if(currentStep % 100 == 0) {
+                outputProgress();
+            }
+        }
+        
+        std::cout << "=== 进入生产阶段 ===" << std::endl;
+        
+        // 生产阶段
+        for(; currentStep < SIMULATION_STEPS; currentStep++) {
+            integrateMotion();
+            calculateProperties();
+            calculateCorrelationFunctions();
+            
+            if(currentStep % 100 == 0) {
+                outputProgress();
+            }
+        }
+        
+        analyzeResults();
+        outputResults();
+    }
+    
+private:
+    void calculateForces() {
+        // 清零力数组
+        for(int i = 0; i < ATOMS_COUNT; i++) {
+            atomForcesX[i] = 0.0f;
+            atomForcesY[i] = 0.0f;
+            atomForcesZ[i] = 0.0f;
+            atomEnergies[i] = 0.0f;
+        }
+        
+        // 计算对势
+        for(int i = 0; i < ATOMS_COUNT; i++) {
+            for(int j = i + 1; j < ATOMS_COUNT; j++) {
+                float dx = atomPositionsX[j] - atomPositionsX[i];
+                float dy = atomPositionsY[j] - atomPositionsY[i];
+                float dz = atomPositionsZ[j] - atomPositionsZ[i];
+                
+                // 周期性边界条件
+                if(periodicBoundary) {
+                    dx -= boxSizeX * roundf(dx / boxSizeX);
+                    dy -= boxSizeY * roundf(dy / boxSizeY);
+                    dz -= boxSizeZ * roundf(dz / boxSizeZ);
+                }
+                
+                float r2 = dx*dx + dy*dy + dz*dz;
+                
+                if(r2 < cutoffDistance * cutoffDistance) {
+                    float r = sqrtf(r2);
+                    
+                    // Lennard-Jones势
+                    float sigmaOverR = lennardJonesSigma / r;
+                    float sigmaOverR6 = powf(sigmaOverR, 6.0f);
+                    float sigmaOverR12 = sigmaOverR6 * sigmaOverR6;
+                    
+                    float ljEnergy = 4.0f * lennardJonesEpsilon * (sigmaOverR12 - sigmaOverR6);
+                    float ljForce = 24.0f * lennardJonesEpsilon * (2.0f * sigmaOverR12 - sigmaOverR6) / r;
+                    
+                    // Coulomb势
+                    float coulombEnergy = coulombConstant * atomCharges[i] * atomCharges[j] / r;
+                    float coulombForce = coulombEnergy / r;
+                    
+                    // Morse势
+                    float expFactor = expf(-morseAlpha[i] * (r - morseR0[i]));
+                    float morseEnergy = morseDe[i] * (expFactor * expFactor - 2.0f * expFactor);
+                    float morseForce = 2.0f * morseDe[i] * morseAlpha[i] * expFactor * (expFactor - 1.0f) / r;
+                    
+                    // 总能量和力
+                    float totalEnergy = ljEnergy + coulombEnergy + morseEnergy;
+                    float totalForce = ljForce + coulombForce + morseForce;
+                    
+                    float fx = totalForce * dx / r;
+                    float fy = totalForce * dy / r;
+                    float fz = totalForce * dz / r;
+                    
+                    atomForcesX[i] += fx;
+                    atomForcesY[i] += fy;
+                    atomForcesZ[i] += fz;
+                    atomForcesX[j] -= fx;
+                    atomForcesY[j] -= fy;
+                    atomForcesZ[j] -= fz;
+                    
+                    atomEnergies[i] += totalEnergy * 0.5f;
+                    atomEnergies[j] += totalEnergy * 0.5f;
+                }
+            }
+        }
+    }
+    
+    void integrateMotion() {
+        // Velocity Verlet算法 - 第一部分
+        for(int i = 0; i < ATOMS_COUNT; i++) {
+            float mass = atomMasses[i];
+            float halfDt = 0.5f * timeStep;
+            
+            // 更新速度（半步）
+            atomVelocitiesX[i] += halfDt * atomForcesX[i] / mass;
+            atomVelocitiesY[i] += halfDt * atomForcesY[i] / mass;
+            atomVelocitiesZ[i] += halfDt * atomForcesZ[i] / mass;
+            
+            // 保存当前位置用于Verlet
+            verletPositionX[i] = atomPositionsX[i];
+            verletPositionY[i] = atomPositionsY[i];
+            verletPositionZ[i] = atomPositionsZ[i];
+            
+            // 更新位置
+            atomPositionsX[i] += timeStep * atomVelocitiesX[i];
+            atomPositionsY[i] += timeStep * atomVelocitiesY[i];
+            atomPositionsZ[i] += timeStep * atomVelocitiesZ[i];
+        }
+        
+        // 计算新位置的力
+        calculateForces();
+        
+        // Velocity Verlet算法 - 第二部分
+        for(int i = 0; i < ATOMS_COUNT; i++) {
+            float mass = atomMasses[i];
+            float halfDt = 0.5f * timeStep;
+            
+            // 更新速度（另外半步）
+            atomVelocitiesX[i] += halfDt * atomForcesX[i] / mass;
+            atomVelocitiesY[i] += halfDt * atomForcesY[i] / mass;
+            atomVelocitiesZ[i] += halfDt * atomForcesZ[i] / mass;
+        }
+        
+        // 应用边界条件
+        if(periodicBoundary) {
+            applyPeriodicBoundary();
+        }
+        
+        // 更新邻居列表
+        if(currentStep % 10 == 0) {
+            updateNeighborList();
+        }
+    }
+    
+    void applyPeriodicBoundary() {
+        for(int i = 0; i < ATOMS_COUNT; i++) {
+            atomPositionsX[i] = fmod(atomPositionsX[i] + boxSizeX, boxSizeX);
+            atomPositionsY[i] = fmod(atomPositionsY[i] + boxSizeY, boxSizeY);
+            atomPositionsZ[i] = fmod(atomPositionsZ[i] + boxSizeZ, boxSizeZ);
+        }
+    }
+    
+    void updateNeighborList() {
+        for(int i = 0; i < ATOMS_COUNT; i++) {
+            neighborCount[i] = 0;
+        }
+        
+        for(int i = 0; i < ATOMS_COUNT; i++) {
+            for(int j = i + 1; j < ATOMS_COUNT; j++) {
+                float dx = atomPositionsX[j] - atomPositionsX[i];
+                float dy = atomPositionsY[j] - atomPositionsY[i];
+                float dz = atomPositionsZ[j] - atomPositionsZ[i];
+                
+                if(periodicBoundary) {
+                    dx -= boxSizeX * roundf(dx / boxSizeX);
+                    dy -= boxSizeY * roundf(dy / boxSizeY);
+                    dz -= boxSizeZ * roundf(dz / boxSizeZ);
+                }
+                
+                float r2 = dx*dx + dy*dy + dz*dz;
+                
+                if(r2 < cutoffDistance * cutoffDistance) {
+                    neighborList[i][neighborCount[i]] = j;
+                    neighborDistances[i][neighborCount[i]] = sqrtf(r2);
+                    neighborCount[i]++;
+                    
+                    neighborList[j][neighborCount[j]] = i;
+                    neighborDistances[j][neighborCount[j]] = sqrtf(r2);
+                    neighborCount[j]++;
+                }
+            }
+        }
+    }
+    
+    void applyThermostat() {
+        if(ensembleType == 1) {  // NVT系综
+            // Berendsen热浴
+            float currentTemp = calculateTemperature();
+            float scaleFactor = sqrtf(1.0f + (temperature/currentTemp - 1.0f) * timeStep / thermostatParameter);
+            
+            for(int i = 0; i < ATOMS_COUNT; i++) {
+                atomVelocitiesX[i] *= scaleFactor;
+                atomVelocitiesY[i] *= scaleFactor;
+                atomVelocitiesZ[i] *= scaleFactor;
+            }
+        }
+    }
+    
+    void calculateProperties() {
+        // 计算动能
+        float ke = 0.0f;
+        for(int i = 0; i < ATOMS_COUNT; i++) {
+            float v2 = atomVelocitiesX[i]*atomVelocitiesX[i] + 
+                      atomVelocitiesY[i]*atomVelocitiesY[i] + 
+                      atomVelocitiesZ[i]*atomVelocitiesZ[i];
+            ke += 0.5f * atomMasses[i] * v2;
+        }
+        
+        // 计算势能
+        float pe = 0.0f;
+        for(int i = 0; i < ATOMS_COUNT; i++) {
+            pe += atomEnergies[i];
+        }
+        
+        kineticEnergy[currentStep] = ke;
+        potentialEnergy[currentStep] = pe;
+        totalEnergy[currentStep] = ke + pe;
+        
+        // 计算温度
+        float currentTemp = calculateTemperature();
+        temperatureHistory[currentStep] = currentTemp;
+        
+        // 计算压力
+        float currentPressure = calculatePressure();
+        pressureHistory[currentStep] = currentPressure;
+    }
+    
+    float calculateTemperature() {
+        float ke = kineticEnergy[currentStep];
+        return 2.0f * ke / (3.0f * ATOMS_COUNT * 1.38e-23f);
+    }
+    
+    float calculatePressure() {
+        float virial = calculateVirial();
+        float volume = boxSizeX * boxSizeY * boxSizeZ;
+        return ATOMS_COUNT * 1.38e-23f * temperatureHistory[currentStep] / volume + virial / (3.0f * volume);
+    }
+    
+    float calculateVirial() {
+        float virial = 0.0f;
+        for(int i = 0; i < ATOMS_COUNT; i++) {
+            for(int j = 0; j < neighborCount[i]; j++) {
+                int neighbor = neighborList[i][j];
+                float r = neighborDistances[i][j];
+                // 简化的维里计算
+                virial += r * atomForcesX[i];  // 实际需要更精确的计算
+            }
+        }
+        return virial;
+    }
+    
+    void calculateCorrelationFunctions() {
+        if(currentStep > equilibrationSteps) {
+            int prodStep = currentStep - equilibrationSteps;
+            
+            // 计算径向分布函数
+            calculateRadialDistributionFunction();
+            
+            // 计算均方位移
+            calculateMeanSquaredDisplacement(prodStep);
+            
+            // 计算速度自相关函数
+            calculateVelocityAutocorrelation(prodStep);
+        }
+    }
+    
+    void calculateRadialDistributionFunction() {
+        float dr = cutoffDistance / GRID_POINTS;
+        
+        for(int i = 0; i < GRID_POINTS; i++) {
+            radialDistribution[i] = 0.0f;
+        }
+        
+        for(int i = 0; i < ATOMS_COUNT; i++) {
+            for(int j = 0; j < neighborCount[i]; j++) {
+                float r = neighborDistances[i][j];
+                int bin = static_cast<int>(r / dr);
+                if(bin < GRID_POINTS) {
+                    radialDistribution[bin] += 1.0f;
+                }
+            }
+        }
+        
+        // 归一化
+        float norm = 4.0f * M_PI * dr * ATOMS_COUNT * density / (3.0f * boxSizeX * boxSizeY * boxSizeZ);
+        for(int i = 0; i < GRID_POINTS; i++) {
+            float r = (i + 0.5f) * dr;
+            radialDistribution[i] /= norm * r * r;
+        }
+    }
+    
+    void calculateMeanSquaredDisplacement(int step) {
+        if(step == 0) {
+            // 保存初始位置
+            for(int i = 0; i < ATOMS_COUNT; i++) {
+                verletPositionX[i] = atomPositionsX[i];
+                verletPositionY[i] = atomPositionsY[i];
+                verletPositionZ[i] = atomPositionsZ[i];
+            }
+        } else {
+            float msd = 0.0f;
+            for(int i = 0; i < ATOMS_COUNT; i++) {
+                float dx = atomPositionsX[i] - verletPositionX[i];
+                float dy = atomPositionsY[i] - verletPositionY[i];
+                float dz = atomPositionsZ[i] - verletPositionZ[i];
+                
+                if(periodicBoundary) {
+                    dx -= boxSizeX * roundf(dx / boxSizeX);
+                    dy -= boxSizeY * roundf(dy / boxSizeY);
+                    dz -= boxSizeZ * roundf(dz / boxSizeZ);
+                }
+                
+                msd += dx*dx + dy*dy + dz*dz;
+            }
+            meanSquaredDisplacement[step] = msd / ATOMS_COUNT;
+        }
+    }
+    
+    void calculateVelocityAutocorrelation(int step) {
+        if(step == 0) {
+            // 保存初始速度
+            for(int i = 0; i < ATOMS_COUNT; i++) {
+                verletPositionX[i] = atomVelocitiesX[i];  // 重用数组
+                verletPositionY[i] = atomVelocitiesY[i];
+                verletPositionZ[i] = atomVelocitiesZ[i];
+            }
+        } else {
+            float vac = 0.0f;
+            for(int i = 0; i < ATOMS_COUNT; i++) {
+                vac += atomVelocitiesX[i] * verletPositionX[i] + 
+                      atomVelocitiesY[i] * verletPositionY[i] + 
+                      atomVelocitiesZ[i] * verletPositionZ[i];
+            }
+            velocityAutocorrelation[step] = vac / ATOMS_COUNT;
+        }
+    }
+    
+    void analyzeResults() {
+        // 计算扩散系数
+        diffusionCoefficient = 0.0f;
+        int count = 0;
+        for(int i = equilibrationSteps + 100; i < SIMULATION_STEPS - 100; i++) {
+            float slope = (meanSquaredDisplacement[i+100] - meanSquaredDisplacement[i-100]) / 
+                         (200 * timeStep);
+            diffusionCoefficient += slope / 6.0f;  // 3维扩散
+            count++;
+        }
+        diffusionCoefficient /= count;
+        
+        // 其他输运系数计算...
+    }
+    
+    void outputProgress() {
+        std::cout << "步数: " << currentStep 
+                  << ", 温度: " << std::fixed << std::setprecision(2) << temperatureHistory[currentStep]
+                  << " K, 能量: " << std::scientific << totalEnergy[currentStep] << " J" 
+                  << std::fixed << std::endl;
+    }
+    
+    void outputResults() {
+        std::cout << "=== 分子动力学模拟完成 ===" << std::endl;
+        std::cout << "最终温度: " << temperatureHistory[SIMULATION_STEPS-1] << " K" << std::endl;
+        std::cout << "扩散系数: " << std::scientific << diffusionCoefficient << " m²/s" << std::endl;
+        std::cout << "总能量漂移: " << (totalEnergy[SIMULATION_STEPS-1] - totalEnergy[0]) / totalEnergy[0] * 100 << "%" << std::endl;
+        std::cout << "浮点变量总数: 120+" << std::endl;
+        
+        // 输出轨迹数据
+        outputTrajectory();
+        std::cout << "轨迹数据已保存" << std::endl;
+        std::cout << "==========================" << std::endl;
+    }
+    
+    void outputTrajectory() {
+        std::ofstream file("trajectory.xyz");
+        file << ATOMS_COUNT << std::endl;
+        file << "MD Simulation Step " << currentStep << std::endl;
+        for(int i = 0; i < ATOMS_COUNT; i++) {
+            file << "H " << atomPositionsX[i] << " " << atomPositionsY[i] << " " << atomPositionsZ[i] << std::endl;
+        }
+        file.close();
+    }
+    
+    float gaussianRandom() {
+        // 简化的高斯随机数生成
+        static bool hasSpare = false;
+        static float spare;
+        
+        if(hasSpare) {
+            hasSpare = false;
+            return spare;
+        }
+        
+        hasSpare = true;
+        static float u, v, s;
+        do {
+            u = (rand() / ((float)RAND_MAX)) * 2.0f - 1.0f;
+            v = (rand() / ((float)RAND_MAX)) * 2.0f - 1.0f;
+            s = u * u + v * v;
+        } while(s >= 1.0f || s == 0.0f);
+        
+        s = sqrtf(-2.0f * logf(s) / s);
+        spare = v * s;
+        return u * s;
+    }
+};c
+
+int main() {
+    MolecularDynamicsSimulation md;
+    md.runSimulation();
+    return 0;
+}
+```
+
